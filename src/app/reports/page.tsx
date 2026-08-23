@@ -4,7 +4,7 @@ import { useState } from 'react';
 import AppShell from '@/components/AppShell';
 import { formatMoney } from '@/lib/format';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://itcafinanceback.onrender.com/api';
 
 interface Preview {
   csv: string;
