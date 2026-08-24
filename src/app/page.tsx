@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
+import { isInternalRole, useAuth } from '@/lib/auth-context';
 
 const COMING_SOON = [
   {
@@ -19,7 +19,8 @@ const COMING_SOON = [
 ];
 
 export default function RootPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
+  const isOfficer = !!user && isInternalRole(user.role);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -30,12 +31,43 @@ export default function RootPage() {
             <p className="text-sm font-medium text-ink">Account Management</p>
           </div>
           {!loading && (
-            <Link
-              href={user ? '/dashboard' : '/login'}
-              className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90"
-            >
-              {user ? 'Go to Dashboard' : 'Officer Sign In'}
-            </Link>
+            <div className="flex items-center gap-2">
+              {!user && (
+                <Link
+                  href="/register"
+                  className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-ink hover:bg-slate-50"
+                >
+                  Create Account
+                </Link>
+              )}
+              {isOfficer && (
+                <Link
+                  href="/dashboard"
+                  className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90"
+                >
+                  Go to Dashboard
+                </Link>
+              )}
+              {!isOfficer && !user && (
+                <Link
+                  href="/login"
+                  className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90"
+                >
+                  Officer Sign In
+                </Link>
+              )}
+              {!isOfficer && user && (
+                <>
+                  <span className="text-sm text-slate-500">Signed in as {user.name}</span>
+                  <button
+                    onClick={logout}
+                    className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+                  >
+                    Sign out
+                  </button>
+                </>
+              )}
+            </div>
           )}
         </div>
       </header>
@@ -48,12 +80,33 @@ export default function RootPage() {
             built so any member can see where the money comes from and where it goes.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              href={user ? '/dashboard' : '/login'}
-              className="rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-ink hover:bg-gold/90"
-            >
-              {user ? 'Go to Dashboard' : 'Officer Sign In'}
-            </Link>
+            {isOfficer ? (
+              <Link
+                href="/dashboard"
+                className="rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-ink hover:bg-gold/90"
+              >
+                Go to Dashboard
+              </Link>
+            ) : user ? (
+              <span className="rounded-md bg-white/10 px-5 py-2.5 text-sm font-semibold text-white">
+                You're signed in — public features are coming soon
+              </span>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className="rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-ink hover:bg-gold/90"
+                >
+                  Create a Student Account
+                </Link>
+                <Link
+                  href="/login"
+                  className="rounded-md border border-white/30 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
+                >
+                  Officer Sign In
+                </Link>
+              </>
+            )}
             <a
               href="#coming-soon"
               className="rounded-md border border-white/30 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"

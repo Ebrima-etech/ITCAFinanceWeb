@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { isInternalRole, useAuth } from '@/lib/auth-context';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -21,13 +21,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user) router.replace('/login');
+    if (loading) return;
+    if (!user) {
+      router.replace('/login');
+    } else if (!isInternalRole(user.role)) {
+      // Student accounts have no internal financial access yet - nothing
+      // in here applies to them, so send them back to the public page.
+      router.replace('/');
+    }
   }, [loading, user, router]);
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center text-slate-400">Loading...</div>;
   }
-  if (!user) return null;
+  if (!user || !isInternalRole(user.role)) return null;
 
   return (
     <div className="min-h-screen bg-slate-50">

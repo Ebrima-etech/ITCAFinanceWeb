@@ -16,10 +16,18 @@ interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+// Self-registered students have no internal financial access yet (see
+// accounts/permissions.py IsInternalUser on the backend) - this mirrors
+// that on the frontend so pages can gate consistently.
+export function isInternalRole(role: Role | undefined): boolean {
+  return role === 'ADMIN' || role === 'FINANCE_OFFICER' || role === 'COMMITTEE_MEMBER';
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -49,7 +57,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       localStorage.setItem('itca_token', result.accessToken);
       setUser(result.user);
-      router.push('/dashboard');
+      router.push(isInternalRole(result.user.role) ? '/dashboard' : '/');
+    },
+    [router],
+  );
+
+  const register = useCallback(
+    async (name: string, email: string, password: string) => {
+      const result = await api.post<{ accessToken: string; user: AuthUser }>('/auth/register', {
+        name,
+        email,
+        password,
+      });
+      localStorage.setItem('itca_token', result.accessToken);
+      setUser(result.user);
+      router.push('/');
     },
     [router],
   );
@@ -61,7 +83,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

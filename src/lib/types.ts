@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'FINANCE_OFFICER' | 'COMMITTEE_MEMBER';
+export type Role = 'ADMIN' | 'FINANCE_OFFICER' | 'COMMITTEE_MEMBER' | 'STUDENT';
 
 export type TransactionType =
   | 'DUE'
