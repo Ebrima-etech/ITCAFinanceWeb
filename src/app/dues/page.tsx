@@ -1,8 +1,15 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+import { Plus, Wallet, AlertCircle, Users } from 'lucide-react';
 import AppShell from '@/components/AppShell';
 import StatCard from '@/components/StatCard';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+import EmptyState from '@/components/ui/EmptyState';
+import { SkeletonTable } from '@/components/ui/Skeleton';
+import { inputClass, selectClass, thClass, tdClass, trClass } from '@/lib/ui';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { formatDate, formatMoney } from '@/lib/format';
@@ -60,108 +67,112 @@ export default function DuesPage() {
   return (
     <AppShell>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold text-ink">Membership Dues</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-ink">Membership Dues</h1>
+          <p className="mt-0.5 text-sm text-slate-500">Cash and online payments, in one record.</p>
+        </div>
         {canEdit && (
-          <button
-            onClick={() => setShowForm((v) => !v)}
-            className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90"
-          >
-            {showForm ? 'Close form' : '+ Record payment'}
-          </button>
+          <Button onClick={() => setShowForm((v) => !v)}>
+            <Plus className="h-4 w-4" /> {showForm ? 'Close form' : 'Record payment'}
+          </Button>
         )}
       </div>
 
-      <div className="mt-4">
-        <StatCard label="Total dues collected" value={formatMoney(total)} tone="positive" />
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <StatCard label="Total dues collected" value={formatMoney(total)} tone="positive" icon={Wallet} />
+        <StatCard label="Members paid" value={String(dues.length)} icon={Users} />
       </div>
 
       {showForm && (
-        <form
-          onSubmit={handleSubmit}
-          className="mt-4 grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-5"
-        >
-          <input
-            required
-            placeholder="Member name"
-            value={memberName}
-            onChange={(e) => setMemberName(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-2"
-          />
-          <input
-            type="email"
-            placeholder="Email (optional)"
-            value={memberEmail}
-            onChange={(e) => setMemberEmail(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-2"
-          />
-          <select
-            value={method}
-            onChange={(e) => setMethod(e.target.value as DuesMethod)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          >
-            <option value="CASH">Cash</option>
-            <option value="ONLINE">Online</option>
-          </select>
-          <input
-            required
-            type="number"
-            step="0.01"
-            min="0.01"
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          />
-          <input
-            required
-            type="date"
-            value={paidAt}
-            onChange={(e) => setPaidAt(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          />
-          {error && <p className="text-sm text-red-600 sm:col-span-5">{error}</p>}
-          <button
-            type="submit"
-            className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90 sm:col-span-5"
-          >
-            Record payment
-          </button>
-        </form>
+        <Card className="mt-4 p-5">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-5">
+            <input
+              required
+              placeholder="Member name"
+              value={memberName}
+              onChange={(e) => setMemberName(e.target.value)}
+              className={`${inputClass} sm:col-span-2`}
+            />
+            <input
+              type="email"
+              placeholder="Email (optional)"
+              value={memberEmail}
+              onChange={(e) => setMemberEmail(e.target.value)}
+              className={`${inputClass} sm:col-span-2`}
+            />
+            <select value={method} onChange={(e) => setMethod(e.target.value as DuesMethod)} className={selectClass}>
+              <option value="CASH">Cash</option>
+              <option value="ONLINE">Online</option>
+            </select>
+            <input
+              required
+              type="number"
+              step="0.01"
+              min="0.01"
+              placeholder="Amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className={inputClass}
+            />
+            <input
+              required
+              type="date"
+              value={paidAt}
+              onChange={(e) => setPaidAt(e.target.value)}
+              className={inputClass}
+            />
+            {error && (
+              <div className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-sm text-danger-text sm:col-span-5">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+                {error}
+              </div>
+            )}
+            <Button type="submit" className="sm:col-span-5">
+              Record payment
+            </Button>
+          </form>
+        </Card>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <Card className="mt-6 overflow-hidden">
         {loading ? (
-          <p className="px-5 py-6 text-sm text-slate-400">Loading...</p>
+          <SkeletonTable rows={5} cols={5} />
         ) : dues.length === 0 ? (
-          <p className="px-5 py-6 text-sm text-slate-400">No dues recorded yet.</p>
+          <EmptyState icon={Wallet} title="No dues recorded yet" />
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-slate-500">
-                <th className="px-5 py-2">Member</th>
-                <th className="px-5 py-2">Method</th>
-                <th className="px-5 py-2">Paid</th>
-                <th className="px-5 py-2 text-right">Amount</th>
-                <th className="px-5 py-2">Recorded by</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dues.map((due) => (
-                <tr key={due.id} className="border-t border-slate-100">
-                  <td className="px-5 py-2">
-                    <p className="font-medium">{due.memberName}</p>
-                    {due.memberEmail && <p className="text-xs text-slate-400">{due.memberEmail}</p>}
-                  </td>
-                  <td className="px-5 py-2">{due.method === 'CASH' ? 'Cash' : 'Online'}</td>
-                  <td className="px-5 py-2">{formatDate(due.paidAt)}</td>
-                  <td className="px-5 py-2 text-right font-medium">{formatMoney(due.amount)}</td>
-                  <td className="px-5 py-2 text-slate-500">{due.recordedBy.name}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50/70">
+                <tr>
+                  <th className={thClass}>Member</th>
+                  <th className={thClass}>Method</th>
+                  <th className={thClass}>Paid</th>
+                  <th className={`${thClass} text-right`}>Amount</th>
+                  <th className={thClass}>Recorded by</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {dues.map((due) => (
+                  <tr key={due.id} className={trClass}>
+                    <td className={tdClass}>
+                      <p className="font-medium text-slate-900">{due.memberName}</p>
+                      {due.memberEmail && <p className="text-xs text-slate-400">{due.memberEmail}</p>}
+                    </td>
+                    <td className={tdClass}>
+                      <Badge tone={due.method === 'CASH' ? 'neutral' : 'blue'}>
+                        {due.method === 'CASH' ? 'Cash' : 'Online'}
+                      </Badge>
+                    </td>
+                    <td className={`${tdClass} text-slate-500`}>{formatDate(due.paidAt)}</td>
+                    <td className={`${tdClass} text-right font-medium tabular-nums`}>{formatMoney(due.amount)}</td>
+                    <td className={`${tdClass} text-slate-500`}>{due.recordedBy.name}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+      </Card>
     </AppShell>
   );
 }

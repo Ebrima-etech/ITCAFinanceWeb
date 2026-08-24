@@ -1,7 +1,10 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 import { api } from '@/lib/api';
+import Button from '@/components/ui/Button';
+import { inputClass, selectClass } from '@/lib/ui';
 import type { EventSummary, Transaction, TransactionType } from '@/lib/types';
 
 const TYPES: { value: TransactionType; label: string }[] = [
@@ -66,7 +69,7 @@ export default function TransactionForm({
       <select
         value={type}
         onChange={(e) => setType(e.target.value as TransactionType)}
-        className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-1"
+        className={`${selectClass} sm:col-span-1`}
       >
         {TYPES.map((t) => (
           <option key={t.value} value={t.value}>
@@ -79,13 +82,13 @@ export default function TransactionForm({
         placeholder="Category"
         value={category}
         onChange={(e) => setCategory(e.target.value)}
-        className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-1"
+        className={`${inputClass} sm:col-span-1`}
       />
       <input
         placeholder="Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-2"
+        className={`${inputClass} sm:col-span-2`}
       />
       <input
         required
@@ -95,19 +98,19 @@ export default function TransactionForm({
         placeholder="Amount"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
-        className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-1"
+        className={`${inputClass} sm:col-span-1`}
       />
       <input
         required
         type="date"
         value={occurredAt}
         onChange={(e) => setOccurredAt(e.target.value)}
-        className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-1"
+        className={`${inputClass} sm:col-span-1`}
       />
       <select
         value={eventId}
         onChange={(e) => setEventId(e.target.value)}
-        className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-2"
+        className={`${selectClass} sm:col-span-2`}
       >
         <option value="">No linked event</option>
         {events.map((event) => (
@@ -117,24 +120,21 @@ export default function TransactionForm({
         ))}
       </select>
 
-      {error && <p className="text-sm text-red-600 sm:col-span-6">{error}</p>}
+      {error && (
+        <div className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-sm text-danger-text sm:col-span-6">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+          {error}
+        </div>
+      )}
 
       <div className="flex gap-2 sm:col-span-6">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90 disabled:opacity-50"
-        >
+        <Button type="submit" disabled={submitting}>
           {submitting ? 'Saving...' : initial ? 'Save changes' : 'Add transaction'}
-        </button>
+        </Button>
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50"
-          >
+          <Button type="button" variant="secondary" onClick={onCancel}>
             Cancel
-          </button>
+          </Button>
         )}
       </div>
     </form>

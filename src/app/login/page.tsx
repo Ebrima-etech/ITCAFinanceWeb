@@ -2,7 +2,11 @@
 
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
+import { AlertCircle } from 'lucide-react';
 import { useAuth, ApiError } from '@/lib/auth-context';
+import AuthLayout from '@/components/AuthLayout';
+import Button from '@/components/ui/Button';
+import { inputClass, labelClass } from '@/lib/ui';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -25,43 +29,45 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gold">UTG ITCA</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">Account Management</h1>
-        <p className="mt-1 text-sm text-slate-500">Sign in to record and review ITCA's finances.</p>
+    <AuthLayout>
+      <div className="w-full max-w-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gold lg:hidden">UTG ITCA</p>
+        <h1 className="mt-1 text-2xl font-bold text-ink">Welcome back</h1>
+        <p className="mt-1 text-sm text-slate-500">Sign in to record and review ITCA&apos;s finances.</p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-7 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700">Email</label>
+            <label className={labelClass}>Email</label>
             <input
               type="email"
               required
+              autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
+              className={`mt-1 ${inputClass}`}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700">Password</label>
+            <label className={labelClass}>Password</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
+              className={`mt-1 ${inputClass}`}
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <div className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-sm text-danger-text">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+              {error}
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-ink/90 disabled:opacity-50"
-          >
+          <Button type="submit" disabled={submitting} className="w-full">
             {submitting ? 'Signing in...' : 'Sign in'}
-          </button>
+          </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-500">
@@ -71,6 +77,6 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

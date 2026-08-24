@@ -1,11 +1,41 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+import { Plus, UserX, AlertCircle, Users, History } from 'lucide-react';
 import AppShell from '@/components/AppShell';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+import EmptyState from '@/components/ui/EmptyState';
+import { SkeletonTable } from '@/components/ui/Skeleton';
+import { inputClass, selectClass, thClass, tdClass, trClass } from '@/lib/ui';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { formatDateTime } from '@/lib/format';
 import type { ActivityLogEntry, Role, User } from '@/lib/types';
+
+const ROLE_TONE: Record<Role, 'gold' | 'blue' | 'neutral'> = {
+  ADMIN: 'gold',
+  FINANCE_OFFICER: 'blue',
+  COMMITTEE_MEMBER: 'neutral',
+  STUDENT: 'neutral',
+};
+
+const ACTION_TONE: Record<string, 'success' | 'blue' | 'danger' | 'neutral'> = {
+  CREATE: 'success',
+  UPDATE: 'blue',
+  DELETE: 'danger',
+  DEACTIVATE: 'danger',
+};
+
+function initials(name: string) {
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
 
 export default function AdminPage() {
   const { user: currentUser } = useAuth();
@@ -60,158 +90,171 @@ export default function AdminPage() {
 
   return (
     <AppShell>
-      <h1 className="text-xl font-bold text-ink">Admin</h1>
+      <h1 className="text-2xl font-bold text-ink">Admin</h1>
+      <p className="mt-0.5 text-sm text-slate-500">Officer accounts and the accountability trail.</p>
 
-      <div className="mt-4 flex gap-2 border-b border-slate-200">
-        {(['accounts', 'activity'] as const).map((t) => (
+      <div className="mt-6 flex gap-1 border-b border-slate-200">
+        {([
+          { key: 'accounts', label: 'Officer accounts', icon: Users },
+          { key: 'activity', label: 'Activity log', icon: History },
+        ] as const).map((t) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium ${
-              tab === t ? 'border-ink text-ink' : 'border-transparent text-slate-500 hover:text-slate-700'
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+              tab === t.key ? 'border-ink text-ink' : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            {t === 'accounts' ? 'Officer accounts' : 'Activity log'}
+            <t.icon className="h-4 w-4" strokeWidth={2} />
+            {t.label}
           </button>
         ))}
       </div>
 
       {tab === 'accounts' && (
-        <div className="mt-4">
-          <button
-            onClick={() => setShowForm((v) => !v)}
-            className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90"
-          >
-            {showForm ? 'Close form' : '+ Add officer account'}
-          </button>
+        <div className="mt-5">
+          <div className="flex justify-end">
+            <Button onClick={() => setShowForm((v) => !v)}>
+              <Plus className="h-4 w-4" /> {showForm ? 'Close form' : 'Add officer account'}
+            </Button>
+          </div>
 
           {showForm && (
-            <form
-              onSubmit={handleCreate}
-              className="mt-4 grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-4"
-            >
-              <input
-                required
-                placeholder="Full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-              />
-              <input
-                required
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-              />
-              <input
-                required
-                type="password"
-                minLength={8}
-                placeholder="Temporary password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-              />
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as Role)}
-                className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-              >
-                <option value="COMMITTEE_MEMBER">Committee member</option>
-                <option value="FINANCE_OFFICER">Finance officer</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-              {error && <p className="text-sm text-red-600 sm:col-span-4">{error}</p>}
-              <button
-                type="submit"
-                className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90 sm:col-span-4"
-              >
-                Create account
-              </button>
-            </form>
+            <Card className="mt-4 p-5">
+              <form onSubmit={handleCreate} className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+                <input
+                  required
+                  placeholder="Full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={inputClass}
+                />
+                <input
+                  required
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={inputClass}
+                />
+                <input
+                  required
+                  type="password"
+                  minLength={8}
+                  placeholder="Temporary password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClass}
+                />
+                <select value={role} onChange={(e) => setRole(e.target.value as Role)} className={selectClass}>
+                  <option value="COMMITTEE_MEMBER">Committee member</option>
+                  <option value="FINANCE_OFFICER">Finance officer</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+                {error && (
+                  <div className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-sm text-danger-text sm:col-span-4">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+                    {error}
+                  </div>
+                )}
+                <Button type="submit" className="sm:col-span-4">
+                  Create account
+                </Button>
+              </form>
+            </Card>
           )}
 
-          <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+          <Card className="mt-4 overflow-hidden">
             {loading ? (
-              <p className="px-5 py-6 text-sm text-slate-400">Loading...</p>
+              <SkeletonTable rows={4} cols={5} />
             ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-slate-500">
-                    <th className="px-5 py-2">Name</th>
-                    <th className="px-5 py-2">Email</th>
-                    <th className="px-5 py-2">Role</th>
-                    <th className="px-5 py-2">Status</th>
-                    <th className="px-5 py-2" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((u) => (
-                    <tr key={u.id} className="border-t border-slate-100">
-                      <td className="px-5 py-2 font-medium">{u.name}</td>
-                      <td className="px-5 py-2 text-slate-500">{u.email}</td>
-                      <td className="px-5 py-2">{u.role.replace('_', ' ')}</td>
-                      <td className="px-5 py-2">
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                            u.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
-                          }`}
-                        >
-                          {u.isActive ? 'Active' : 'Deactivated'}
-                        </span>
-                      </td>
-                      <td className="px-5 py-2">
-                        {u.isActive && u.id !== currentUser?.id && (
-                          <button
-                            onClick={() => handleDeactivate(u.id)}
-                            className="text-xs font-semibold text-red-600 hover:underline"
-                          >
-                            Deactivate
-                          </button>
-                        )}
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50/70">
+                    <tr>
+                      <th className={thClass}>Name</th>
+                      <th className={thClass}>Email</th>
+                      <th className={thClass}>Role</th>
+                      <th className={thClass}>Status</th>
+                      <th className={thClass} />
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {users.map((u) => (
+                      <tr key={u.id} className={trClass}>
+                        <td className={tdClass}>
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink/5 text-[11px] font-semibold text-ink">
+                              {initials(u.name)}
+                            </div>
+                            <span className="font-medium text-slate-900">{u.name}</span>
+                          </div>
+                        </td>
+                        <td className={`${tdClass} text-slate-500`}>{u.email}</td>
+                        <td className={tdClass}>
+                          <Badge tone={ROLE_TONE[u.role]}>{u.role.replace('_', ' ')}</Badge>
+                        </td>
+                        <td className={tdClass}>
+                          <Badge tone={u.isActive ? 'success' : 'neutral'}>
+                            {u.isActive ? 'Active' : 'Deactivated'}
+                          </Badge>
+                        </td>
+                        <td className={tdClass}>
+                          {u.isActive && u.id !== currentUser?.id && (
+                            <button
+                              onClick={() => handleDeactivate(u.id)}
+                              title="Deactivate"
+                              className="rounded-md p-1.5 text-slate-400 hover:bg-danger-bg hover:text-danger-text"
+                            >
+                              <UserX className="h-3.5 w-3.5" strokeWidth={2} />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {tab === 'activity' && (
-        <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <Card className="mt-5 overflow-hidden">
           {loading ? (
-            <p className="px-5 py-6 text-sm text-slate-400">Loading...</p>
+            <SkeletonTable rows={6} cols={4} />
           ) : logs.length === 0 ? (
-            <p className="px-5 py-6 text-sm text-slate-400">No activity recorded yet.</p>
+            <EmptyState icon={History} title="No activity recorded yet" />
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs uppercase tracking-wide text-slate-500">
-                  <th className="px-5 py-2">When</th>
-                  <th className="px-5 py-2">Who</th>
-                  <th className="px-5 py-2">Action</th>
-                  <th className="px-5 py-2">On</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr key={log.id} className="border-t border-slate-100">
-                    <td className="px-5 py-2 whitespace-nowrap text-slate-500">
-                      {formatDateTime(log.createdAt)}
-                    </td>
-                    <td className="px-5 py-2">{log.actor?.name ?? 'System'}</td>
-                    <td className="px-5 py-2 font-medium">{log.action}</td>
-                    <td className="px-5 py-2 text-slate-500">{log.entityType}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50/70">
+                  <tr>
+                    <th className={thClass}>When</th>
+                    <th className={thClass}>Who</th>
+                    <th className={thClass}>Action</th>
+                    <th className={thClass}>On</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {logs.map((log) => (
+                    <tr key={log.id} className={trClass}>
+                      <td className={`${tdClass} whitespace-nowrap text-slate-500`}>
+                        {formatDateTime(log.createdAt)}
+                      </td>
+                      <td className={tdClass}>{log.actor?.name ?? 'System'}</td>
+                      <td className={tdClass}>
+                        <Badge tone={ACTION_TONE[log.action] ?? 'neutral'}>{log.action}</Badge>
+                      </td>
+                      <td className={`${tdClass} text-slate-500`}>{log.entityType}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
+        </Card>
       )}
     </AppShell>
   );

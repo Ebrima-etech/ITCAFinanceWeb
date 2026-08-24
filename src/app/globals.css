@@ -4,4 +4,32 @@
 
 body {
   @apply bg-slate-50 text-slate-900;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.slate.300') transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: theme('colors.slate.300');
+  border-radius: 9999px;
+}
+
+:focus-visible {
+  outline: 2px solid theme('colors.ink');
+  outline-offset: 2px;
+}
+
+/* Tabular figures for anything money-shaped, so columns of numbers align. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }

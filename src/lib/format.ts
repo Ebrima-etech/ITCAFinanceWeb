@@ -24,3 +24,11 @@ export function typeLabel(type: string): string {
     .map((w) => w[0].toUpperCase() + w.slice(1))
     .join(' ');
 }
+
+const INFLOW_TYPES = new Set(['DUE', 'EVENT_REVENUE', 'GIFT', 'OTHER_INCOME']);
+
+// Mirrors the backend's is_inflow - used to color-code transaction types
+// consistently with the dashboard's income (blue) / expense (orange) chart.
+export function isInflowType(type: string): boolean {
+  return INFLOW_TYPES.has(type);
+}
