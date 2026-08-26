@@ -16,29 +16,41 @@ function getToken(): string | null {
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    cache: 'no-store',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  });
 
-  if (!res.ok) {
-    let message = res.statusText;
-    try {
-      const body = await res.json();
-      message = Array.isArray(body.message) ? body.message.join(', ') : body.message ?? message;
-    } catch {
-      // response had no JSON body
+  try {
+    const res = await fetch(`${API_URL}${path}`, {
+      ...options,
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+
+    if (!res.ok) {
+      let message = res.statusText;
+      try {
+        const body = await res.json();
+        message = Array.isArray(body.message) ? body.message.join(', ') : body.message ?? message;
+      } catch {
+        // response had no JSON body
+      }
+      throw new ApiError(message, res.status);
     }
-    throw new ApiError(message, res.status);
-  }
 
-  if (res.status === 204) return undefined as T;
-  return res.json();
+    if (res.status === 204) return undefined as T;
+    return res.json();
+  } catch (err) {
+    // Network error or other fetch failure
+    if (err instanceof ApiError) throw err;
+
+    const message = err instanceof Error && err.message.includes('Failed to fetch')
+      ? `Cannot connect to server (${API_URL}). Make sure the backend is running.`
+      : err instanceof Error ? err.message : 'Network error. Please try again.';
+
+    throw new ApiError(message, 0);
+  }
 }
 
 export const api = {
