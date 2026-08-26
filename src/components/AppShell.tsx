@@ -83,7 +83,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               >
                 <Icon className="h-4 w-4" strokeWidth={2} />
                 {item.label}
-                {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-gold" />}
               </Link>
             );
           })}
