@@ -12,12 +12,14 @@ import {
   FileText,
   ShieldCheck,
   LogOut,
+  MessageSquare,
   type LucideIcon,
 } from 'lucide-react';
 import { isInternalRole, useAuth } from '@/lib/auth-context';
 
 const NAV_ITEMS: { href: string; label: string; icon: LucideIcon; adminOnly?: boolean }[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/feed', label: 'Feed', icon: MessageSquare },
   { href: '/ledger', label: 'Ledger', icon: BookOpen },
   { href: '/events', label: 'Events', icon: CalendarDays },
   { href: '/dues', label: 'Dues', icon: Wallet },

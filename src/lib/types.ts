@@ -83,3 +83,27 @@ export interface ActivityLogEntry {
   createdAt: string;
   actor: { id: string; name: string; email: string } | null;
 }
+
+export interface Comment {
+  id: string;
+  author: { id: string; name: string };
+  content: string;
+  createdAt: string;
+}
+
+export interface Post {
+  id: string;
+  author: { id: string; name: string };
+  content: string;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+  comments: Comment[];
+  likesCount: number;
+  commentsCount: number;
+  sharesCount: number;
+  savesCount: number;
+  isLiked: boolean;
+  isSaved: boolean;
+  isShared: boolean;
+}

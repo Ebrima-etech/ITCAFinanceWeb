@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { Plus, Wallet, AlertCircle, Users } from 'lucide-react';
+import { Plus, Wallet, AlertCircle, Users, Pencil, Trash2 } from 'lucide-react';
 import AppShell from '@/components/AppShell';
 import StatCard from '@/components/StatCard';
 import Card from '@/components/ui/Card';
@@ -23,6 +23,7 @@ export default function DuesPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<MembershipDue | null>(null);
 
   const [memberName, setMemberName] = useState('');
   const [memberEmail, setMemberEmail] = useState('');
@@ -47,21 +48,48 @@ export default function DuesPage() {
     e.preventDefault();
     setError(null);
     try {
-      await api.post('/membership-dues', {
-        memberName,
-        memberEmail: memberEmail || undefined,
-        amount: parseFloat(amount),
-        method,
-        paidAt,
-      });
+      if (editing) {
+        await api.patch(`/membership-dues/${editing.id}`, {
+          memberName,
+          memberEmail: memberEmail || undefined,
+          amount: parseFloat(amount),
+          method,
+          paidAt,
+        });
+      } else {
+        await api.post('/membership-dues', {
+          memberName,
+          memberEmail: memberEmail || undefined,
+          amount: parseFloat(amount),
+          method,
+          paidAt,
+        });
+      }
       setMemberName('');
       setMemberEmail('');
       setAmount('');
       setShowForm(false);
+      setEditing(null);
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not record due');
+      setError(err instanceof Error ? err.message : `Could not ${editing ? 'update' : 'record'} due`);
     }
+  }
+
+  function handleEdit(due: MembershipDue) {
+    setEditing(due);
+    setMemberName(due.memberName);
+    setMemberEmail(due.memberEmail || '');
+    setAmount(String(due.amount));
+    setMethod(due.method);
+    setPaidAt(due.paidAt.split('T')[0]);
+    setShowForm(true);
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this membership due?')) return;
+    await api.delete(`/membership-dues/${id}`);
+    load();
   }
 
   return (
@@ -85,6 +113,7 @@ export default function DuesPage() {
 
       {showForm && (
         <Card className="mt-4 p-5">
+          {editing && <p className="mb-3 text-sm font-semibold text-slate-700">Editing membership due</p>}
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-5">
             <input
               required
@@ -127,9 +156,27 @@ export default function DuesPage() {
                 {error}
               </div>
             )}
-            <Button type="submit" className="sm:col-span-5">
-              Record payment
-            </Button>
+            <div className="flex gap-2 sm:col-span-5">
+              <Button type="submit" className="flex-1">
+                {editing ? 'Update payment' : 'Record payment'}
+              </Button>
+              {editing && (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setEditing(null);
+                    setShowForm(false);
+                    setMemberName('');
+                    setMemberEmail('');
+                    setAmount('');
+                    setError(null);
+                  }}
+                  className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200"
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
           </form>
         </Card>
       )}
@@ -149,6 +196,7 @@ export default function DuesPage() {
                   <th className={thClass}>Paid</th>
                   <th className={`${thClass} text-right`}>Amount</th>
                   <th className={thClass}>Recorded by</th>
+                  {canEdit && <th className={thClass} />}
                 </tr>
               </thead>
               <tbody>
@@ -166,6 +214,26 @@ export default function DuesPage() {
                     <td className={`${tdClass} text-slate-500`}>{formatDate(due.paidAt)}</td>
                     <td className={`${tdClass} text-right font-medium tabular-nums`}>{formatMoney(due.amount)}</td>
                     <td className={`${tdClass} text-slate-500`}>{due.recordedBy.name}</td>
+                    {canEdit && (
+                      <td className={`${tdClass} whitespace-nowrap`}>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleEdit(due)}
+                            title="Edit"
+                            className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-ink"
+                          >
+                            <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(due.id)}
+                            title="Delete"
+                            className="rounded-md p-1.5 text-slate-400 hover:bg-danger-bg hover:text-danger-text"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
