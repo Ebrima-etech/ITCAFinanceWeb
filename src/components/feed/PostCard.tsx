@@ -18,11 +18,11 @@ interface PostCardProps {
 
 export default function PostCard({ post, onPostDeleted, onCommentAdded }: PostCardProps) {
   const { user } = useAuth();
-  const [liked, setLiked] = useState(post.is_liked);
-  const [saved, setSaved] = useState(post.is_saved);
-  const [shared, setShared] = useState(post.is_shared);
-  const [likesCount, setLikesCount] = useState(post.likes_count);
-  const [savesCount, setSavesCount] = useState(post.saves_count);
+  const [liked, setLiked] = useState(post.isLiked);
+  const [saved, setSaved] = useState(post.isSaved);
+  const [shared, setShared] = useState(post.isShared);
+  const [likesCount, setLikesCount] = useState(post.likesCount);
+  const [savesCount, setSavesCount] = useState(post.savesCount);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
@@ -116,8 +116,8 @@ export default function PostCard({ post, onPostDeleted, onCommentAdded }: PostCa
       {/* Post Stats */}
       <div className="flex items-center gap-4 text-xs text-slate-500 border-b border-slate-100 py-2 mb-3">
         <span>{likesCount} likes</span>
-        <span>{post.comments_count} comments</span>
-        <span>{post.shares_count} shares</span>
+        <span>{post.commentsCount} comments</span>
+        <span>{post.sharesCount} shares</span>
       </div>
 
       {/* Action Buttons */}
