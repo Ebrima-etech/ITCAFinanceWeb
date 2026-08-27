@@ -92,7 +92,7 @@ export default function PostCard({ post, onPostDeleted, onCommentAdded }: PostCa
       <div className="flex items-start justify-between mb-3">
         <div>
           <p className="font-semibold text-slate-900">{post.author.name}</p>
-          <p className="text-xs text-slate-500">{formatDate(post.created_at)}</p>
+          <p className="text-xs text-slate-500">{formatDate(post.createdAt)}</p>
         </div>
         {canDelete && (
           <button
@@ -175,7 +175,7 @@ export default function PostCard({ post, onPostDeleted, onCommentAdded }: PostCa
                   <div className="flex-1">
                     <p className="font-medium text-slate-900">{comment.author.name}</p>
                     <p className="text-slate-700">{comment.content}</p>
-                    <p className="text-xs text-slate-500 mt-1">{formatDate(comment.created_at)}</p>
+                    <p className="text-xs text-slate-500 mt-1">{formatDate(comment.createdAt)}</p>
                   </div>
                 </div>
               ))}
