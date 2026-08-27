@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { Plus, UserX, AlertCircle, Users, History } from 'lucide-react';
+import { Plus, UserX, AlertCircle, Users, History, MessageSquare, Trash2 } from 'lucide-react';
 import AppShell from '@/components/AppShell';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -11,8 +11,8 @@ import { SkeletonTable } from '@/components/ui/Skeleton';
 import { inputClass, selectClass, thClass, tdClass, trClass } from '@/lib/ui';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { formatDateTime } from '@/lib/format';
-import type { ActivityLogEntry, Role, User } from '@/lib/types';
+import { formatDateTime, formatDate } from '@/lib/format';
+import type { ActivityLogEntry, Role, User, Post } from '@/lib/types';
 
 const ROLE_TONE: Record<Role, 'gold' | 'blue' | 'neutral'> = {
   ADMIN: 'gold',
@@ -39,9 +39,10 @@ function initials(name: string) {
 
 export default function AdminPage() {
   const { user: currentUser } = useAuth();
-  const [tab, setTab] = useState<'accounts' | 'activity'>('accounts');
+  const [tab, setTab] = useState<'posts' | 'accounts' | 'activity'>('posts');
   const [users, setUsers] = useState<User[]>([]);
   const [logs, setLogs] = useState<ActivityLogEntry[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
@@ -51,14 +52,21 @@ export default function AdminPage() {
   const [role, setRole] = useState<Role>('COMMITTEE_MEMBER');
   const [error, setError] = useState<string | null>(null);
 
+  const [postContent, setPostContent] = useState('');
+  const [postImage, setPostImage] = useState('');
+  const [postError, setPostError] = useState<string | null>(null);
+  const [showPostForm, setShowPostForm] = useState(false);
+
   async function load() {
     setLoading(true);
-    const [userList, logList] = await Promise.all([
+    const [userList, logList, postList] = await Promise.all([
       api.get<User[]>('/users'),
       api.get<ActivityLogEntry[]>('/activity-log?take=50'),
+      api.get<Post[]>('/feed'),
     ]);
     setUsers(userList);
     setLogs(logList);
+    setPosts(postList);
     setLoading(false);
   }
 
@@ -88,6 +96,33 @@ export default function AdminPage() {
     load();
   }
 
+  async function handleCreatePost(e: FormEvent) {
+    e.preventDefault();
+    setPostError(null);
+    try {
+      await api.post('/feed', {
+        content: postContent,
+        image: postImage || undefined,
+      });
+      setPostContent('');
+      setPostImage('');
+      setShowPostForm(false);
+      load();
+    } catch (err) {
+      setPostError(err instanceof Error ? err.message : 'Could not create post');
+    }
+  }
+
+  async function handleDeletePost(id: string) {
+    if (!confirm('Delete this post?')) return;
+    try {
+      await api.delete(`/feed/${id}`);
+      load();
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+    }
+  }
+
   return (
     <AppShell>
       <h1 className="text-2xl font-bold text-ink">Admin</h1>
@@ -95,6 +130,7 @@ export default function AdminPage() {
 
       <div className="mt-6 flex gap-1 border-b border-slate-200">
         {([
+          { key: 'posts', label: 'Posts', icon: MessageSquare },
           { key: 'accounts', label: 'Officer accounts', icon: Users },
           { key: 'activity', label: 'Activity log', icon: History },
         ] as const).map((t) => (
@@ -110,6 +146,94 @@ export default function AdminPage() {
           </button>
         ))}
       </div>
+
+      {tab === 'posts' && (
+        <div className="mt-5">
+          <div className="flex justify-end">
+            <Button onClick={() => setShowPostForm((v) => !v)}>
+              <Plus className="h-4 w-4" /> {showPostForm ? 'Close' : 'Create post'}
+            </Button>
+          </div>
+
+          {showPostForm && (
+            <Card className="mt-4 p-5">
+              <form onSubmit={handleCreatePost} className="space-y-3">
+                <textarea
+                  required
+                  placeholder="What's on your mind?"
+                  value={postContent}
+                  onChange={(e) => setPostContent(e.target.value)}
+                  className={`${inputClass} min-h-24 resize-none`}
+                />
+                <input
+                  type="url"
+                  placeholder="Image URL (optional)"
+                  value={postImage}
+                  onChange={(e) => setPostImage(e.target.value)}
+                  className={inputClass}
+                />
+                {postError && (
+                  <div className="flex items-start gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+                    {postError}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={!postContent.trim()}>
+                    Post
+                  </Button>
+                  <Button type="button" onClick={() => setShowPostForm(false)} className="bg-slate-200 text-slate-700 hover:bg-slate-300">
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </Card>
+          )}
+
+          <Card className="mt-4 overflow-hidden">
+            {loading ? (
+              <SkeletonTable rows={4} cols={4} />
+            ) : posts.length === 0 ? (
+              <EmptyState icon={MessageSquare} title="No posts yet" description="Create your first post to engage with members" />
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50/70">
+                    <tr>
+                      <th className={thClass}>Content</th>
+                      <th className={thClass}>Created</th>
+                      <th className={thClass}>Interactions</th>
+                      <th className={thClass} />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {posts.map((post) => (
+                      <tr key={post.id} className={trClass}>
+                        <td className={`${tdClass} max-w-xs truncate`}>{post.content}</td>
+                        <td className={`${tdClass} text-slate-500`}>{formatDate(post.createdAt)}</td>
+                        <td className={tdClass}>
+                          <span className="text-xs text-slate-600">
+                            ❤️ {post.likesCount} · 💬 {post.commentsCount} · 📌 {post.savesCount}
+                          </span>
+                        </td>
+                        <td className={tdClass}>
+                          <button
+                            onClick={() => handleDeletePost(post.id)}
+                            className="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
 
       {tab === 'accounts' && (
         <div className="mt-5">

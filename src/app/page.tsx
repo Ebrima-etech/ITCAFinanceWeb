@@ -1,10 +1,13 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Eye, PieChart, CreditCard, PlusCircle, Activity, FileCheck } from 'lucide-react';
+import { ArrowRight, Eye, PieChart, CreditCard, PlusCircle, Activity, FileCheck, Heart, MessageCircle } from 'lucide-react';
 import { isInternalRole, useAuth } from '@/lib/auth-context';
+import { api } from '@/lib/api';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
+import type { Post } from '@/lib/types';
 
 const COMING_SOON = [
   {
@@ -45,6 +48,22 @@ const HOW_IT_WORKS = [
 export default function RootPage() {
   const { user, loading, logout } = useAuth();
   const isOfficer = !!user && isInternalRole(user.role);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [postsLoading, setPostsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadPosts() {
+      try {
+        const data = await api.get<Post[]>('/feed');
+        setPosts(data.slice(0, 3)); // Show last 3 posts
+      } catch (err) {
+        console.error('Failed to load posts:', err);
+      } finally {
+        setPostsLoading(false);
+      }
+    }
+    loadPosts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -168,6 +187,60 @@ export default function RootPage() {
               <p className="mt-1.5 text-sm text-slate-500">{item.body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Community Feed Section */}
+      <section className="border-t border-slate-200 bg-slate-50 py-16">
+        <div className="mx-auto max-w-5xl px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-ink">Community Updates</h2>
+            <p className="mt-2 text-slate-500">Latest news and announcements from ITCA</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {postsLoading ? (
+              Array(3).fill(0).map((_, i) => (
+                <Card key={i} className="h-48 animate-pulse" />
+              ))
+            ) : posts.length === 0 ? (
+              <div className="lg:col-span-3 text-center py-8 text-slate-500">
+                <p>No posts yet. Check back soon!</p>
+              </div>
+            ) : (
+              posts.map((post) => (
+                <Card key={post.id} className="p-4 flex flex-col">
+                  <p className="text-xs font-semibold text-slate-500 uppercase mb-2">{post.author.name}</p>
+                  <p className="text-sm text-slate-700 flex-1 mb-3 line-clamp-3">{post.content}</p>
+                  {post.image && (
+                    <img src={post.image} alt="Post" className="w-full rounded mb-3 max-h-32 object-cover" />
+                  )}
+                  <div className="flex items-center gap-3 text-xs text-slate-500 border-t border-slate-100 pt-3">
+                    <span className="flex items-center gap-1">
+                      <Heart className="h-3 w-3" /> {post.likesCount}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MessageCircle className="h-3 w-3" /> {post.commentsCount}
+                    </span>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+
+          {posts.length > 0 && (
+            <div className="text-center mt-8">
+              {isOfficer ? (
+                <Link href="/feed" className="inline-flex items-center gap-2 text-ink font-semibold hover:underline">
+                  Go to Community Feed <ArrowRight className="h-4 w-4" />
+                </Link>
+              ) : (
+                <Link href="/register" className="inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90">
+                  Join to See More <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
