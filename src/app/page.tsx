@@ -36,7 +36,7 @@ export default function RootPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-gold">UTG ITCA</p>
-            <p className="text-sm font-medium text-ink">Community Hub</p>
+            <p className="text-sm font-medium text-ink">Account Management</p>
           </div>
           {!loading && (
             <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export default function RootPage() {
                     href="/login"
                     className="rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ink/90"
                   >
-                    Sign In
+                    Officer Sign In
                   </Link>
                 </>
               )}
@@ -80,27 +80,79 @@ export default function RootPage() {
         </div>
       </header>
 
-      {/* Coming Soon Section - Right After Header */}
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-ink text-white">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(circle at 80% 10%, rgba(201,150,44,0.18), transparent 45%), radial-gradient(circle at 15% 85%, rgba(201,150,44,0.10), transparent 40%)',
+          }}
+        />
+        <div className="relative mx-auto max-w-5xl px-4 py-20 text-center sm:py-28">
+          <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/70">
+            One ledger. Every dalasi accounted for.
+          </span>
+          <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
+            ITCA&apos;s money, in the open
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base text-white/70 sm:text-lg">
+            A single place where ITCA&apos;s dues, event revenue, gifts, and spending are tracked —
+            built so any member can see where the money comes from and where it goes.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            {isOfficer ? (
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-ink shadow-sm hover:bg-gold/90"
+              >
+                Go to Dashboard <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : user ? (
+              <span className="rounded-lg bg-white/10 px-5 py-2.5 text-sm font-semibold text-white">
+                Explore the community feed below
+              </span>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-2 rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-ink shadow-sm hover:bg-gold/90"
+                >
+                  Create a Student Account <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/login"
+                  className="rounded-lg border border-white/25 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
+                >
+                  Officer Sign In
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Coming Soon Section */}
       <section className="border-b border-slate-200 bg-white py-8">
         <div className="mx-auto max-w-2xl px-4">
           <div className="text-center">
             <Badge tone="gold">Coming Soon for Members</Badge>
-            <h2 className="mt-3 text-lg font-semibold text-ink">Financial Transparency</h2>
+            <h2 className="mt-3 text-lg font-semibold text-ink">Full Financial Dashboard</h2>
             <p className="mt-2 text-sm text-slate-600">
-              Full access to ITCA's income, expenses, and financial reports coming soon for registered members.
+              Detailed reports, budgeting tools, and complete financial transparency for ITCA members.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Community Feed - Main Content */}
-      <section className="mx-auto max-w-2xl px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-ink">Community Feed</h1>
-          <p className="mt-1 text-slate-600">Latest updates and announcements from ITCA</p>
+      {/* Community Feed - Public Section */}
+      <section className="mx-auto max-w-2xl px-4 py-12">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-ink">Finance Ministry</h2>
+          <p className="mt-2 text-slate-600">Latest news and announcements from ITCA</p>
         </div>
 
-        {/* Feed Posts */}
+        {/* Feed Posts - PUBLIC */}
         <div className="space-y-4">
           {postsLoading ? (
             <div className="text-center py-12 text-slate-500">
@@ -140,25 +192,20 @@ export default function RootPage() {
                   />
                 )}
 
-                {/* Post Stats & Actions */}
+                {/* Post Stats */}
                 <div className="border-t border-slate-100 pt-3">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex gap-4 text-slate-600">
-                      <button className="flex items-center gap-1.5 hover:text-red-600 transition-colors">
+                      <span className="flex items-center gap-1.5">
                         <Heart className="h-4 w-4" /> {post.likesCount}
-                      </button>
-                      <button className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+                      </span>
+                      <span className="flex items-center gap-1.5">
                         <MessageCircle className="h-4 w-4" /> {post.commentsCount}
-                      </button>
-                      <button className="flex items-center gap-1.5 hover:text-amber-600 transition-colors">
+                      </span>
+                      <span className="flex items-center gap-1.5">
                         <Bookmark className="h-4 w-4" /> {post.savesCount}
-                      </button>
+                      </span>
                     </div>
-                    {user && isOfficer && (
-                      <Link href="/feed" className="text-ink font-semibold text-sm hover:underline">
-                        View all
-                      </Link>
-                    )}
                   </div>
                 </div>
               </Card>
@@ -166,52 +213,31 @@ export default function RootPage() {
           )}
         </div>
 
-        {/* CTA for Guests */}
-        {!user && posts.length > 0 && (
-          <div className="mt-8 text-center">
-            <p className="text-slate-600 mb-4">Want to engage with the community?</p>
-            <div className="flex gap-3 justify-center">
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 rounded-lg bg-ink px-6 py-3 text-sm font-semibold text-white hover:bg-ink/90"
-              >
-                Create Account <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/login"
-                className="rounded-lg border border-ink px-6 py-3 text-sm font-semibold text-ink hover:bg-ink/5"
-              >
-                Sign In
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* CTA for Logged In Users */}
+        {/* CTA - Only for logged in users */}
         {user && !isOfficer && posts.length > 0 && (
           <div className="mt-8 text-center">
-            <p className="text-slate-600 mb-4">Explore the full community feed</p>
+            <p className="text-slate-600 mb-4">Interact with posts and more on the full feed</p>
             <Link
               href="/feed"
               className="inline-flex items-center gap-2 rounded-lg bg-ink px-6 py-3 text-sm font-semibold text-white hover:bg-ink/90"
             >
-              View Feed <ArrowRight className="h-4 w-4" />
+              View Full Feed <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         )}
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-slate-50 py-8 mt-8">
+      <footer className="border-t border-slate-200 bg-slate-50 py-8 mt-12">
         <div className="mx-auto max-w-5xl px-4 text-center text-xs text-slate-400">
-          <p>University of The Gambia · ITCA Community Hub</p>
-          <p className="mt-2">
-            {isOfficer && (
+          <p>University of The Gambia · ITCA Account Management</p>
+          {isOfficer && (
+            <p className="mt-2">
               <Link href="/admin" className="text-ink hover:underline">
                 Admin Panel
               </Link>
-            )}
-          </p>
+            </p>
+          )}
         </div>
       </footer>
     </div>
