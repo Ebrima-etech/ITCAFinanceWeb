@@ -1,185 +1,196 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useAuth, isInternalRole } from '@/lib/auth-context';
 import Link from 'next/link';
-import { ArrowRight, Heart, MessageCircle, Bookmark } from 'lucide-react';
-import { isInternalRole, useAuth } from '@/lib/auth-context';
-import { api } from '@/lib/api';
-import Card from '@/components/ui/Card';
-import Badge from '@/components/ui/Badge';
-import type { Post } from '@/lib/types';
+import { TrendingUp, Lock, BarChart3, Zap } from 'lucide-react';
 
 export default function RootPage() {
-  const { user, loading, logout } = useAuth();
+  const { user } = useAuth();
   const isOfficer = !!user && isInternalRole(user.role);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [postsLoading, setPostsLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadPosts() {
-      try {
-        const data = await api.get<Post[]>('/feed');
-        setPosts(data);
-      } catch (err) {
-        console.error('Failed to load posts:', err);
-      } finally {
-        setPostsLoading(false);
-      }
-    }
-    loadPosts();
-  }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gold">UTG ITCA</p>
-            <p className="text-sm font-medium text-ink">Account Management</p>
-          </div>
-          {!loading && isOfficer && (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Navigation */}
+      <nav className="border-b border-slate-800/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-gold to-gold/60 flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-slate-950 font-bold" strokeWidth={3} />
+              </div>
+              <div>
+                <p className="text-xs font-bold tracking-widest text-gold">ITCA</p>
+                <p className="text-xs text-slate-400">Finance</p>
+              </div>
+            </div>
+            {isOfficer && (
               <Link
                 href="/dashboard"
-                className="rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ink/90"
+                className="px-5 py-2 rounded-lg bg-gold text-slate-950 text-sm font-semibold hover:bg-gold/90 transition-colors"
               >
                 Dashboard
               </Link>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </header>
+      </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-ink text-white">
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(circle at 80% 10%, rgba(201,150,44,0.18), transparent 45%), radial-gradient(circle at 15% 85%, rgba(201,150,44,0.10), transparent 40%)',
-          }}
-        />
-        <div className="relative mx-auto max-w-5xl px-4 py-20 text-center sm:py-28">
-          <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/70">
-            One ledger. Every dalasi accounted for.
-          </span>
-          <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
-            ITCA&apos;s money, in the open
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base text-white/70 sm:text-lg">
-            A single place where ITCA&apos;s dues, event revenue, gifts, and spending are tracked —
-            built so any member can see where the money comes from and where it goes.
-          </p>
-        </div>
-      </section>
+      <section className="relative overflow-hidden pt-20 pb-32 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          {/* Background Elements */}
+          <div className="absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
+          </div>
 
-      {/* Coming Soon Section */}
-      <section className="border-b border-slate-200 bg-white py-8">
-        <div className="mx-auto max-w-2xl px-4">
-          <div className="text-center">
-            <Badge tone="gold">Coming Soon for Members</Badge>
-            <h2 className="mt-3 text-lg font-semibold text-ink">Full Financial Dashboard</h2>
-            <p className="mt-2 text-sm text-slate-600">
-              Detailed reports, budgeting tools, and complete financial transparency for ITCA members.
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gold/30 bg-gold/5 mb-6">
+              <Zap className="h-4 w-4 text-gold" strokeWidth={2} />
+              <span className="text-xs font-semibold text-gold">Financial Transparency</span>
+            </div>
+
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
+              Every Dalasi,<br />
+              <span className="bg-gradient-to-r from-gold via-gold to-gold/60 bg-clip-text text-transparent">
+                Accounted For
+              </span>
+            </h1>
+
+            <p className="text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+              Professional financial management for ITCA. Track dues, events, budgets, and spending
+              with institutional-grade transparency and control.
             </p>
           </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-20">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
+              <div className="relative bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:border-gold/30 transition-colors">
+                <div className="mb-3 inline-block p-3 bg-gold/10 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-gold" strokeWidth={2} />
+                </div>
+                <p className="text-slate-400 text-sm font-medium mb-2">Total Managed</p>
+                <p className="text-3xl font-bold text-white">D0.00</p>
+              </div>
+            </div>
+
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
+              <div className="relative bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:border-gold/30 transition-colors">
+                <div className="mb-3 inline-block p-3 bg-gold/10 rounded-lg">
+                  <Lock className="h-6 w-6 text-gold" strokeWidth={2} />
+                </div>
+                <p className="text-slate-400 text-sm font-medium mb-2">Secure & Audited</p>
+                <p className="text-3xl font-bold text-white">100%</p>
+              </div>
+            </div>
+
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
+              <div className="relative bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:border-gold/30 transition-colors">
+                <div className="mb-3 inline-block p-3 bg-gold/10 rounded-lg">
+                  <BarChart3 className="h-6 w-6 text-gold" strokeWidth={2} />
+                </div>
+                <p className="text-slate-400 text-sm font-medium mb-2">Real-time Reporting</p>
+                <p className="text-3xl font-bold text-white">Live</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Community Feed - Public Section */}
-      <section className="mx-auto max-w-2xl px-4 py-12 hidden">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-ink">Finance Ministry</h2>
-          <p className="mt-2 text-slate-600">Latest news and announcements from ITCA</p>
-        </div>
-
-        {/* Feed Posts - PUBLIC */}
-        <div className="space-y-4">
-          {postsLoading ? (
-            <div className="text-center py-12 text-slate-500">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-ink"></div>
-              <p className="mt-3">Loading posts...</p>
-            </div>
-          ) : posts.length === 0 ? (
-            <Card className="p-8 text-center">
-              <p className="text-slate-600">No posts yet. Check back soon!</p>
-            </Card>
-          ) : (
-            posts.map((post) => (
-              <Card key={post.id} className="p-6 hover:shadow-card-hover transition-shadow">
-                {/* Post Header */}
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <p className="font-semibold text-slate-900">{post.author.name}</p>
-                    <p className="text-xs text-slate-500">
-                      {new Date(post.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Post Content */}
-                <p className="text-slate-700 mb-3 whitespace-pre-wrap">{post.content}</p>
-
-                {/* Post Image */}
-                {post.image && (
-                  <img
-                    src={post.image}
-                    alt="Post"
-                    className="w-full rounded-lg mb-3 max-h-96 object-cover"
-                  />
-                )}
-
-                {/* Post Stats */}
-                <div className="border-t border-slate-100 pt-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex gap-4 text-slate-600">
-                      <span className="flex items-center gap-1.5">
-                        <Heart className="h-4 w-4" /> {post.likesCount}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <MessageCircle className="h-4 w-4" /> {post.commentsCount}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Bookmark className="h-4 w-4" /> {post.savesCount}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))
-          )}
-        </div>
-
-        {/* CTA - Only for logged in users */}
-        {user && !isOfficer && posts.length > 0 && (
-          <div className="mt-8 text-center">
-            <p className="text-slate-600 mb-4">Interact with posts and more on the full feed</p>
-            <Link
-              href="/feed"
-              className="inline-flex items-center gap-2 rounded-lg bg-ink px-6 py-3 text-sm font-semibold text-white hover:bg-ink/90"
-            >
-              View Full Feed <ArrowRight className="h-4 w-4" />
-            </Link>
+      {/* Features Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-slate-800/50">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              Built for Financial Excellence
+            </h2>
+            <p className="text-lg text-slate-400">
+              Comprehensive tools for modern financial management
+            </p>
           </div>
-        )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              {
+                title: 'Complete Ledger',
+                description: 'Every transaction recorded. Full audit trail. Zero discrepancies.',
+                icon: '📊',
+              },
+              {
+                title: 'Event Tracking',
+                description: 'Manage revenue and costs per event with precise profit calculations.',
+                icon: '📅',
+              },
+              {
+                title: 'Budget Planning',
+                description: 'Plan ahead with variance analysis and year-over-year comparisons.',
+                icon: '💰',
+              },
+              {
+                title: 'Membership Dues',
+                description: 'Track payments by member, method, and date with automated reporting.',
+                icon: '👥',
+              },
+            ].map((feature, i) => (
+              <div
+                key={i}
+                className="group bg-slate-800/30 border border-slate-700/50 rounded-2xl p-8 hover:border-gold/30 hover:bg-slate-800/50 transition-all duration-300"
+              >
+                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{feature.icon}</div>
+                <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+                <p className="text-slate-400 leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-gold/10 rounded-3xl blur-2xl" />
+            <div className="relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-gold/20 rounded-3xl p-12 text-center backdrop-blur-sm">
+              <h3 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                Ready to take control?
+              </h3>
+              <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
+                Join ITCA's modern financial management platform. Get started with full visibility
+                into your organization's finances.
+              </p>
+              {isOfficer ? (
+                <Link
+                  href="/dashboard"
+                  className="inline-block px-8 py-4 rounded-lg bg-gold text-slate-950 font-bold hover:bg-gold/90 transition-colors"
+                >
+                  Access Dashboard
+                </Link>
+              ) : (
+                <p className="text-slate-400">Sign in with your officer account to access the dashboard.</p>
+              )}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-slate-50 py-8 mt-12">
-        <div className="mx-auto max-w-5xl px-4 text-center text-xs text-slate-400">
-          <p>University of The Gambia · ITCA Account Management</p>
-          {isOfficer && (
-            <p className="mt-2">
-              <Link href="/admin" className="text-ink hover:underline">
-                Admin Panel
-              </Link>
+      <footer className="border-t border-slate-800/50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <div className="flex items-center gap-2 mb-4 sm:mb-0">
+              <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-gold to-gold/60 flex items-center justify-center">
+                <BarChart3 className="h-4 w-4 text-slate-950" strokeWidth={3} />
+              </div>
+              <span className="font-bold text-white">ITCA Finance</span>
+            </div>
+            <p className="text-sm text-slate-500">
+              University of The Gambia · Financial Management Excellence
             </p>
-          )}
+          </div>
         </div>
       </footer>
     </div>
