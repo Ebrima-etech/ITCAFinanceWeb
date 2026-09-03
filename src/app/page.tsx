@@ -18,10 +18,6 @@ export default function RootPage() {
             <span className="text-sm font-semibold tracking-tight">ITCA Finance</span>
           </div>
           <div className="flex items-center gap-8">
-            <div className="hidden sm:flex items-center gap-8 text-sm">
-              <button className="text-white/60 hover:text-white transition-colors">About</button>
-              <button className="text-white/60 hover:text-white transition-colors">Features</button>
-            </div>
             {isOfficer && (
               <Link
                 href="/dashboard"
@@ -98,40 +94,6 @@ export default function RootPage() {
         </div>
       </section>
 
-      {/* Value Props Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-6 sm:px-8 py-20 border-t border-white/10">
-        <div className="max-w-5xl w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-            {[
-              {
-                title: 'Complete Ledger',
-                description:
-                  'Every transaction recorded and verified. Full audit trail with zero room for discrepancies. Financial integrity guaranteed.',
-              },
-              {
-                title: 'Event Intelligence',
-                description:
-                  'Track revenue and costs by event. Real-time profit calculations. Understand which initiatives drive value.',
-              },
-              {
-                title: 'Budget Mastery',
-                description:
-                  'Plan strategically with variance analysis and year-over-year insights. Make informed financial decisions.',
-              },
-              {
-                title: 'Membership Tracking',
-                description:
-                  'Comprehensive dues management by member, payment method, and date. Automated reporting and reconciliation.',
-              },
-            ].map((item, i) => (
-              <div key={i} className="border-l border-white/10 pl-8 py-4">
-                <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
-                <p className="text-white/60 leading-relaxed">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
