@@ -71,35 +71,6 @@ export default function RootPage() {
             A single place where ITCA&apos;s dues, event revenue, gifts, and spending are tracked —
             built so any member can see where the money comes from and where it goes.
           </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            {isOfficer ? (
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-ink shadow-sm hover:bg-gold/90"
-              >
-                Go to Dashboard <ArrowRight className="h-4 w-4" />
-              </Link>
-            ) : user ? (
-              <span className="rounded-lg bg-white/10 px-5 py-2.5 text-sm font-semibold text-white">
-                Explore the community feed below
-              </span>
-            ) : (
-              <>
-                <Link
-                  href="/register"
-                  className="inline-flex items-center gap-2 rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-ink shadow-sm hover:bg-gold/90"
-                >
-                  Create a Student Account <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  href="/login"
-                  className="rounded-lg border border-white/25 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
-                >
-                  Officer Sign In
-                </Link>
-              </>
-            )}
-          </div>
         </div>
       </section>
 
