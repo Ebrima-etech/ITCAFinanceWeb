@@ -38,43 +38,14 @@ export default function RootPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-gold">UTG ITCA</p>
             <p className="text-sm font-medium text-ink">Account Management</p>
           </div>
-          {!loading && (
+          {!loading && isOfficer && (
             <div className="flex items-center gap-2">
-              {!user && (
-                <>
-                  <Link
-                    href="/register"
-                    className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-ink shadow-sm hover:bg-slate-50"
-                  >
-                    Create Account
-                  </Link>
-                  <Link
-                    href="/login"
-                    className="rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ink/90"
-                  >
-                    Officer Sign In
-                  </Link>
-                </>
-              )}
-              {isOfficer && (
-                <Link
-                  href="/dashboard"
-                  className="rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ink/90"
-                >
-                  Dashboard
-                </Link>
-              )}
-              {!isOfficer && user && (
-                <>
-                  <span className="text-sm text-slate-500">Hi, {user.name}</span>
-                  <button
-                    onClick={logout}
-                    className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-slate-50"
-                  >
-                    Sign out
-                  </button>
-                </>
-              )}
+              <Link
+                href="/dashboard"
+                className="rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ink/90"
+              >
+                Dashboard
+              </Link>
             </div>
           )}
         </div>
@@ -146,7 +117,7 @@ export default function RootPage() {
       </section>
 
       {/* Community Feed - Public Section */}
-      <section className="mx-auto max-w-2xl px-4 py-12">
+      <section className="mx-auto max-w-2xl px-4 py-12 hidden">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-ink">Finance Ministry</h2>
           <p className="mt-2 text-slate-600">Latest news and announcements from ITCA</p>
