@@ -2,31 +2,30 @@
 
 import { useAuth, isInternalRole } from '@/lib/auth-context';
 import Link from 'next/link';
-import { TrendingUp, Lock, BarChart3, Zap } from 'lucide-react';
+import { BarChart3, ChevronDown } from 'lucide-react';
 
 export default function RootPage() {
   const { user } = useAuth();
   const isOfficer = !!user && isInternalRole(user.role);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
-      <nav className="border-b border-slate-800/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-gold to-gold/60 flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-slate-950 font-bold" strokeWidth={3} />
-              </div>
-              <div>
-                <p className="text-xs font-bold tracking-widest text-gold">ITCA</p>
-                <p className="text-xs text-slate-400">Finance</p>
-              </div>
+      <nav className="fixed top-0 w-full z-50 px-6 sm:px-8 py-5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 rounded-sm border border-white/40" />
+            <span className="text-sm font-semibold tracking-tight">ITCA Finance</span>
+          </div>
+          <div className="flex items-center gap-8">
+            <div className="hidden sm:flex items-center gap-8 text-sm">
+              <button className="text-white/60 hover:text-white transition-colors">About</button>
+              <button className="text-white/60 hover:text-white transition-colors">Features</button>
             </div>
             {isOfficer && (
               <Link
                 href="/dashboard"
-                className="px-5 py-2 rounded-lg bg-gold text-slate-950 text-sm font-semibold hover:bg-gold/90 transition-colors"
+                className="px-5 py-2 rounded-md bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors"
               >
                 Dashboard
               </Link>
@@ -36,71 +35,103 @@ export default function RootPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-20 pb-32 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl">
-          {/* Background Elements */}
-          <div className="absolute inset-0 -z-10 overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
-          </div>
+      <section className="h-screen flex flex-col items-center justify-center px-6 sm:px-8 relative">
+        {/* Subtle gradient background */}
+        <div className="absolute inset-0 overflow-hidden -z-10">
+          <div className="absolute top-1/4 right-0 w-1/3 h-1/3 bg-gold/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 left-0 w-1/4 h-1/4 bg-gold/3 rounded-full blur-3xl" />
+        </div>
 
-          <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gold/30 bg-gold/5 mb-6">
-              <Zap className="h-4 w-4 text-gold" strokeWidth={2} />
-              <span className="text-xs font-semibold text-gold">Financial Transparency</span>
-            </div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
-              Every Dalasi,<br />
-              <span className="bg-gradient-to-r from-gold via-gold to-gold/60 bg-clip-text text-transparent">
-                Accounted For
-              </span>
-            </h1>
-
-            <p className="text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
-              Professional financial management for ITCA. Track dues, events, budgets, and spending
-              with institutional-grade transparency and control.
+        <div className="max-w-4xl text-center">
+          {/* Subtitle Badge */}
+          <div className="inline-block mb-8">
+            <p className="text-xs sm:text-sm font-mono text-white/50 tracking-wide">
+              FINANCIAL MANAGEMENT PLATFORM
             </p>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-20">
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
-              <div className="relative bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:border-gold/30 transition-colors">
-                <div className="mb-3 inline-block p-3 bg-gold/10 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-gold" strokeWidth={2} />
-                </div>
-                <p className="text-slate-400 text-sm font-medium mb-2">Total Managed</p>
-                <p className="text-3xl font-bold text-white">D0.00</p>
-              </div>
-            </div>
+          {/* Main Headline */}
+          <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold leading-tight mb-8 tracking-tighter">
+            Every Dalasi,
+            <br />
+            <span className="text-white/40">Accounted For.</span>
+          </h1>
 
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
-              <div className="relative bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:border-gold/30 transition-colors">
-                <div className="mb-3 inline-block p-3 bg-gold/10 rounded-lg">
-                  <Lock className="h-6 w-6 text-gold" strokeWidth={2} />
-                </div>
-                <p className="text-slate-400 text-sm font-medium mb-2">Secure & Audited</p>
-                <p className="text-3xl font-bold text-white">100%</p>
-              </div>
-            </div>
+          {/* Description */}
+          <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed mb-12">
+            Professional financial management for ITCA. Complete transparency on dues, events,
+            budgets, and spending. Built for institutional excellence.
+          </p>
 
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
-              <div className="relative bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:border-gold/30 transition-colors">
-                <div className="mb-3 inline-block p-3 bg-gold/10 rounded-lg">
-                  <BarChart3 className="h-6 w-6 text-gold" strokeWidth={2} />
-                </div>
-                <p className="text-slate-400 text-sm font-medium mb-2">Real-time Reporting</p>
-                <p className="text-3xl font-bold text-white">Live</p>
-              </div>
+          {/* Stats Grid - Minimalist Style */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-16 bg-white/10 rounded-lg overflow-hidden max-w-2xl mx-auto">
+            <div className="bg-black px-8 py-8 text-center">
+              <p className="text-white/50 text-xs font-mono mb-3">TOTAL MANAGED</p>
+              <p className="text-4xl font-bold">D0.00</p>
+            </div>
+            <div className="bg-black px-8 py-8 text-center border-l border-r border-white/10">
+              <p className="text-white/50 text-xs font-mono mb-3">SECURITY LEVEL</p>
+              <p className="text-4xl font-bold">100%</p>
+            </div>
+            <div className="bg-black px-8 py-8 text-center">
+              <p className="text-white/50 text-xs font-mono mb-3">REAL-TIME AUDIT</p>
+              <p className="text-4xl font-bold">Live</p>
             </div>
           </div>
+
+          {/* Enhanced CTA */}
+          {isOfficer ? (
+            <Link
+              href="/dashboard"
+              className="inline-block px-8 py-3 rounded-md bg-white text-black font-semibold hover:bg-white/90 transition-colors"
+            >
+              Access Dashboard
+            </Link>
+          ) : (
+            <p className="text-white/40 text-sm">Sign in as an officer to access the dashboard</p>
+          )}
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <ChevronDown className="h-5 w-5 text-white/40" strokeWidth={1.5} />
         </div>
       </section>
 
+      {/* Value Props Section */}
+      <section className="min-h-screen flex flex-col items-center justify-center px-6 sm:px-8 py-20 border-t border-white/10">
+        <div className="max-w-5xl w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+            {[
+              {
+                title: 'Complete Ledger',
+                description:
+                  'Every transaction recorded and verified. Full audit trail with zero room for discrepancies. Financial integrity guaranteed.',
+              },
+              {
+                title: 'Event Intelligence',
+                description:
+                  'Track revenue and costs by event. Real-time profit calculations. Understand which initiatives drive value.',
+              },
+              {
+                title: 'Budget Mastery',
+                description:
+                  'Plan strategically with variance analysis and year-over-year insights. Make informed financial decisions.',
+              },
+              {
+                title: 'Membership Tracking',
+                description:
+                  'Comprehensive dues management by member, payment method, and date. Automated reporting and reconciliation.',
+              },
+            ].map((item, i) => (
+              <div key={i} className="border-l border-white/10 pl-8 py-4">
+                <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
+                <p className="text-white/60 leading-relaxed">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
