@@ -31,47 +31,47 @@ export default function RootPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="h-screen flex flex-col items-center justify-center px-6 sm:px-8 relative">
+      <section className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-8 py-20 sm:py-0 relative">
         {/* Subtle gradient background */}
         <div className="absolute inset-0 overflow-hidden -z-10">
           <div className="absolute top-1/4 right-0 w-1/3 h-1/3 bg-gold/5 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 left-0 w-1/4 h-1/4 bg-gold/3 rounded-full blur-3xl" />
         </div>
 
-        <div className="max-w-4xl text-center">
+        <div className="max-w-4xl text-center mt-16 sm:mt-0">
           {/* Subtitle Badge */}
-          <div className="inline-block mb-8">
-            <p className="text-xs sm:text-sm font-mono text-white/50 tracking-wide">
+          <div className="inline-block mb-6 sm:mb-8">
+            <p className="text-xs font-mono text-white/50 tracking-wide">
               FINANCIAL MANAGEMENT PLATFORM
             </p>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold leading-tight mb-8 tracking-tighter">
+          <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold leading-tight mb-6 sm:mb-8 tracking-tighter">
             Every Dalasi,
             <br />
             <span className="text-white/40">Accounted For.</span>
           </h1>
 
           {/* Description */}
-          <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed mb-12">
+          <p className="text-base sm:text-lg lg:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed mb-10 sm:mb-12">
             Professional financial management for ITCA. Complete transparency on dues, events,
-            budgets, and spending. Built for institutional excellence.
+            budgets, and spending.
           </p>
 
           {/* Stats Grid - Minimalist Style */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-16 bg-white/10 rounded-lg overflow-hidden max-w-2xl mx-auto">
-            <div className="bg-black px-8 py-8 text-center">
-              <p className="text-white/50 text-xs font-mono mb-3">TOTAL MANAGED</p>
-              <p className="text-4xl font-bold">D0.00</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-12 sm:mb-16 bg-white/10 rounded-lg overflow-hidden max-w-2xl mx-auto">
+            <div className="bg-black px-6 sm:px-8 py-6 sm:py-8 text-center">
+              <p className="text-white/50 text-xs font-mono mb-2 sm:mb-3">TOTAL MANAGED</p>
+              <p className="text-3xl sm:text-4xl font-bold">D0.00</p>
             </div>
-            <div className="bg-black px-8 py-8 text-center border-l border-r border-white/10">
-              <p className="text-white/50 text-xs font-mono mb-3">SECURITY LEVEL</p>
-              <p className="text-4xl font-bold">100%</p>
+            <div className="bg-black px-6 sm:px-8 py-6 sm:py-8 text-center border-l border-r border-white/10">
+              <p className="text-white/50 text-xs font-mono mb-2 sm:mb-3">SECURITY LEVEL</p>
+              <p className="text-3xl sm:text-4xl font-bold">100%</p>
             </div>
-            <div className="bg-black px-8 py-8 text-center">
-              <p className="text-white/50 text-xs font-mono mb-3">REAL-TIME AUDIT</p>
-              <p className="text-4xl font-bold">Live</p>
+            <div className="bg-black px-6 sm:px-8 py-6 sm:py-8 text-center">
+              <p className="text-white/50 text-xs font-mono mb-2 sm:mb-3">REAL-TIME AUDIT</p>
+              <p className="text-3xl sm:text-4xl font-bold">Live</p>
             </div>
           </div>
 
@@ -79,12 +79,12 @@ export default function RootPage() {
           {isOfficer ? (
             <Link
               href="/dashboard"
-              className="inline-block px-8 py-3 rounded-md bg-white text-black font-semibold hover:bg-white/90 transition-colors"
+              className="inline-block px-6 sm:px-8 py-2.5 sm:py-3 rounded-md bg-white text-black text-sm sm:text-base font-semibold hover:bg-white/90 transition-colors"
             >
               Access Dashboard
             </Link>
           ) : (
-            <p className="text-white/40 text-sm">Sign in as an officer to access the dashboard</p>
+            <p className="text-white/40 text-xs sm:text-sm">Sign in as an officer to access the dashboard</p>
           )}
         </div>
 
