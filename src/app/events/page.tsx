@@ -157,17 +157,23 @@ export default function EventsPage() {
             <div key={event.id}>
               <Link href={`/events/${event.id}`}>
                 <Card className="p-5 transition-shadow hover:shadow-card-hover">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between mb-2">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-ink/5 text-ink">
                       <CalendarDays className="h-4 w-4" strokeWidth={2} />
                     </div>
-                    <Badge tone={event.result >= 0 ? 'success' : 'danger'}>{formatMoney(event.result)}</Badge>
+                    <Badge tone={event.status === 'happening' ? 'gold' : event.status === 'upcoming' ? 'blue' : 'neutral'}>
+                      {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                    </Badge>
                   </div>
-                  <p className="mt-3 font-semibold text-ink">{event.name}</p>
+                  <p className="font-semibold text-ink">{event.name}</p>
                   <p className="mt-0.5 text-xs text-slate-500">{formatDate(event.date)}</p>
-                  <div className="mt-3 flex justify-between text-xs text-slate-500">
-                    <span>Revenue {formatMoney(event.revenue)}</span>
-                    <span>Cost {formatMoney(event.cost)}</span>
+                  <div className="mt-3 flex justify-between text-xs">
+                    <span className="text-slate-500">Revenue {formatMoney(event.revenue)}</span>
+                    <span className="text-slate-500">Cost {formatMoney(event.cost)}</span>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-slate-100">
+                    <span className="text-xs font-medium text-slate-600">Result: </span>
+                    <Badge tone={event.result >= 0 ? 'success' : 'danger'} className="inline ml-1">{formatMoney(event.result)}</Badge>
                   </div>
                 </Card>
               </Link>

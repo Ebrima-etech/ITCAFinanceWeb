@@ -37,6 +37,7 @@ export interface EventSummary {
   name: string;
   description: string | null;
   date: string;
+  status: 'upcoming' | 'happening' | 'passed';
   revenue: number;
   cost: number;
   result: number;
