@@ -72,7 +72,7 @@ export interface DashboardSummary {
   net: number;
   byMonth: { month: string; income: number; expenses: number }[];
   byType: Record<string, number>;
-  events: { id: string; name: string; date: string; revenue: number; cost: number; result: number }[];
+  events: { id: string; name: string; date: string; status: 'upcoming' | 'happening' | 'passed'; revenue: number; cost: number; result: number }[];
 }
 
 export interface ActivityLogEntry {

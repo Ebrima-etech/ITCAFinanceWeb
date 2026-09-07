@@ -163,6 +163,8 @@ export default function RootPage() {
                       <thead>
                         <tr className="border-b border-slate-200">
                           <th className="text-left py-3 px-4 font-semibold text-slate-700">Event</th>
+                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Date</th>
+                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Status</th>
                           <th className="text-right py-3 px-4 font-semibold text-slate-700">Revenue</th>
                           <th className="text-right py-3 px-4 font-semibold text-slate-700">Cost</th>
                           <th className="text-right py-3 px-4 font-semibold text-slate-700">Profit</th>
@@ -171,7 +173,17 @@ export default function RootPage() {
                       <tbody>
                         {dashboard.events.slice(0, 5).map((event) => (
                           <tr key={event.id} className="border-b border-slate-100">
-                            <td className="py-3 px-4 text-slate-900">{event.name}</td>
+                            <td className="py-3 px-4 text-slate-900 font-medium">{event.name}</td>
+                            <td className="py-3 px-4 text-slate-600 text-xs">{formatDate(event.date)}</td>
+                            <td className="py-3 px-4">
+                              <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                                event.status === 'happening' ? 'bg-yellow-100 text-yellow-800' :
+                                event.status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
+                                'bg-slate-100 text-slate-800'
+                              }`}>
+                                {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                              </span>
+                            </td>
                             <td className="py-3 px-4 text-right text-green-600 font-medium">{formatMoney(event.revenue)}</td>
                             <td className="py-3 px-4 text-right text-red-600 font-medium">{formatMoney(event.cost)}</td>
                             <td className={`py-3 px-4 text-right font-medium ${event.result >= 0 ? 'text-green-600' : 'text-red-600'}`}>
