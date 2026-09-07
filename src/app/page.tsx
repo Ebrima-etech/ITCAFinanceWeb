@@ -2,7 +2,7 @@
 
 import { useAuth, isInternalRole } from '@/lib/auth-context';
 import Link from 'next/link';
-import { BarChart3, Eye, TrendingUp, DollarSign, Handshake } from 'lucide-react';
+import { BarChart3, Eye, TrendingUp, DollarSign, Handshake, AlertCircle, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
@@ -13,6 +13,7 @@ export default function RootPage() {
   const isOfficer = !!user && isInternalRole(user.role);
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   useEffect(() => {
     async function load() {
@@ -30,8 +31,28 @@ export default function RootPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50/30 to-white">
+      {/* Announcement Banner */}
+      {showAnnouncement && (
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-4 sm:px-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" strokeWidth={2} />
+              <p className="text-sm font-semibold">
+                📢 Join us for the upcoming ITCA event! More details coming soon.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowAnnouncement(false)}
+              className="text-white hover:bg-white/20 rounded-lg p-1 transition-colors flex-shrink-0"
+            >
+              <X className="h-5 w-5" strokeWidth={2} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 px-4 sm:px-8 py-5 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <nav className="fixed top-0 w-full z-50 px-4 sm:px-8 py-5 bg-white/80 backdrop-blur-md border-b border-slate-200" style={{ top: showAnnouncement ? '48px' : '0' }}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
@@ -63,7 +84,7 @@ export default function RootPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 sm:pb-20 px-4 sm:px-8 relative">
+      <section className="pt-28 pb-16 sm:pb-20 px-4 sm:px-8 relative" style={{ paddingTop: showAnnouncement ? '112px' : '96px' }}>
         <div className="absolute inset-0 overflow-hidden -z-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-50/30 rounded-full blur-3xl" />
