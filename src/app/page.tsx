@@ -2,7 +2,7 @@
 
 import { useAuth, isInternalRole } from '@/lib/auth-context';
 import Link from 'next/link';
-import { BarChart3, Eye, TrendingUp, DollarSign } from 'lucide-react';
+import { BarChart3, Eye, TrendingUp, DollarSign, Handshake } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
@@ -45,8 +45,9 @@ export default function RootPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/partners"
-              className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
             >
+              <Handshake className="h-4 w-4" strokeWidth={2} />
               Become Partner
             </Link>
             {isOfficer && (
