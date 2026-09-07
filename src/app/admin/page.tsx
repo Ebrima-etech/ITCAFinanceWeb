@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { Plus, UserX, AlertCircle, Users, History, MessageSquare, Trash2 } from 'lucide-react';
+import { Plus, UserX, AlertCircle, Users, History, MessageSquare, Trash2, Calendar, Handshake, Check, X } from 'lucide-react';
 import AppShell from '@/components/AppShell';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -39,7 +39,7 @@ function initials(name: string) {
 
 export default function AdminPage() {
   const { user: currentUser } = useAuth();
-  const [tab, setTab] = useState<'posts' | 'accounts' | 'activity'>('posts');
+  const [tab, setTab] = useState<'posts' | 'accounts' | 'activity' | 'events' | 'partners'>('posts');
   const [users, setUsers] = useState<User[]>([]);
   const [logs, setLogs] = useState<ActivityLogEntry[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -131,6 +131,8 @@ export default function AdminPage() {
       <div className="mt-6 flex gap-1 border-b border-slate-200">
         {([
           { key: 'posts', label: 'Posts', icon: MessageSquare },
+          { key: 'events', label: 'Events', icon: Calendar },
+          { key: 'partners', label: 'Event Partners', icon: Handshake },
           { key: 'accounts', label: 'Officer accounts', icon: Users },
           { key: 'activity', label: 'Activity log', icon: History },
         ] as const).map((t) => (
@@ -342,6 +344,67 @@ export default function AdminPage() {
             )}
           </Card>
         </div>
+      )}
+
+      {tab === 'events' && (
+        <Card className="mt-5 overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-lg font-bold text-ink mb-4">Events Management</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50/70">
+                  <tr>
+                    <th className={thClass}>Event Name</th>
+                    <th className={thClass}>Date</th>
+                    <th className={thClass}>Status</th>
+                    <th className={thClass}>Partners</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Events would load from API */}
+                  <tr className={trClass}>
+                    <td className={tdClass} colSpan={4}>
+                      <div className="text-center py-8 text-slate-500">
+                        Events data will be displayed here
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {tab === 'partners' && (
+        <Card className="mt-5 overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-lg font-bold text-ink mb-4">Event Partners Applications</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50/70">
+                  <tr>
+                    <th className={thClass}>Organization</th>
+                    <th className={thClass}>Event</th>
+                    <th className={thClass}>Level</th>
+                    <th className={thClass}>Status</th>
+                    <th className={thClass}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Partner applications would load from API */}
+                  <tr className={trClass}>
+                    <td className={tdClass} colSpan={5}>
+                      <div className="text-center py-8 text-slate-500">
+                        Pending partner applications will appear here
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Card>
       )}
 
       {tab === 'activity' && (
