@@ -17,10 +17,10 @@ export default function RootPage() {
   useEffect(() => {
     async function load() {
       try {
-        const data = await api.get<DashboardSummary>('/dashboard');
+        const data = await api.get<DashboardSummary>('/reports/public');
         setDashboard(data);
       } catch (err) {
-        console.error('Failed to load dashboard:', err);
+        console.error('Failed to load reports:', err);
       } finally {
         setLoading(false);
       }
