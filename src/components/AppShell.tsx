@@ -54,6 +54,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (!user || !isInternalRole(user.role)) return null;
 
   const items = NAV_ITEMS.filter((item) => !item.adminOnly || user.role === 'ADMIN');
+  const mobileItems = items.filter((item) => !item.adminOnly);
   const activeItem = items.find((item) => pathname.startsWith(item.href));
   const initials = user.name
     .split(' ')
@@ -123,7 +124,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </button>
           </div>
           <nav className="flex gap-1 overflow-x-auto border-t border-white/10 px-3 py-2">
-            {items.map((item) => (
+            {mobileItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

@@ -12,7 +12,7 @@ import { inputClass, selectClass, thClass, tdClass, trClass } from '@/lib/ui';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { formatDateTime, formatDate } from '@/lib/format';
-import type { ActivityLogEntry, Role, User, Post } from '@/lib/types';
+import type { ActivityLogEntry, Role, User, Post, EventSummary } from '@/lib/types';
 
 const ROLE_TONE: Record<Role, 'gold' | 'blue' | 'neutral'> = {
   ADMIN: 'gold',
@@ -37,12 +37,24 @@ function initials(name: string) {
     .toUpperCase();
 }
 
+interface EventPartnerApp {
+  id: string;
+  event: { id: string; name: string };
+  organizationName: string;
+  contactPerson: string;
+  email: string;
+  sponsorshipLevel: string;
+  status: string;
+}
+
 export default function AdminPage() {
   const { user: currentUser } = useAuth();
   const [tab, setTab] = useState<'posts' | 'accounts' | 'activity' | 'events' | 'partners'>('posts');
   const [users, setUsers] = useState<User[]>([]);
   const [logs, setLogs] = useState<ActivityLogEntry[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [events, setEvents] = useState<EventSummary[]>([]);
+  const [partners, setPartners] = useState<EventPartnerApp[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
@@ -59,15 +71,24 @@ export default function AdminPage() {
 
   async function load() {
     setLoading(true);
-    const [userList, logList, postList] = await Promise.all([
-      api.get<User[]>('/users'),
-      api.get<ActivityLogEntry[]>('/activity-log?take=50'),
-      api.get<Post[]>('/feed'),
-    ]);
-    setUsers(userList);
-    setLogs(logList);
-    setPosts(postList);
-    setLoading(false);
+    try {
+      const [userList, logList, postList, eventList, partnerList] = await Promise.all([
+        api.get<User[]>('/users'),
+        api.get<ActivityLogEntry[]>('/activity-log?take=50'),
+        api.get<Post[]>('/feed'),
+        api.get<EventSummary[]>('/events'),
+        api.get<EventPartnerApp[]>('/event-partners'),
+      ]);
+      setUsers(userList);
+      setLogs(logList);
+      setPosts(postList);
+      setEvents(eventList);
+      setPartners(partnerList);
+    } catch (err) {
+      console.error('Failed to load admin data:', err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -348,8 +369,11 @@ export default function AdminPage() {
 
       {tab === 'events' && (
         <Card className="mt-5 overflow-hidden">
-          <div className="p-6">
-            <h2 className="text-lg font-bold text-ink mb-4">Events Management</h2>
+          {loading ? (
+            <SkeletonTable rows={4} cols={4} />
+          ) : events.length === 0 ? (
+            <EmptyState icon={Calendar} title="No events yet" description="Create events to start tracking revenue and costs" />
+          ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50/70">
@@ -357,53 +381,118 @@ export default function AdminPage() {
                     <th className={thClass}>Event Name</th>
                     <th className={thClass}>Date</th>
                     <th className={thClass}>Status</th>
+                    <th className={thClass}>Revenue</th>
+                    <th className={thClass}>Cost</th>
+                    <th className={thClass}>Result</th>
                     <th className={thClass}>Partners</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Events would load from API */}
-                  <tr className={trClass}>
-                    <td className={tdClass} colSpan={4}>
-                      <div className="text-center py-8 text-slate-500">
-                        Events data will be displayed here
-                      </div>
-                    </td>
-                  </tr>
+                  {events.map((event) => {
+                    const eventPartners = partners.filter((p) => p.event.id === event.id).filter((p) => p.status === 'approved');
+                    return (
+                      <tr key={event.id} className={trClass}>
+                        <td className={tdClass}>
+                          <span className="font-medium text-slate-900">{event.name}</span>
+                        </td>
+                        <td className={`${tdClass} text-slate-500`}>{formatDate(event.date)}</td>
+                        <td className={tdClass}>
+                          <Badge tone={event.status === 'happening' ? 'gold' : event.status === 'upcoming' ? 'blue' : 'neutral'}>
+                            {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                          </Badge>
+                        </td>
+                        <td className={`${tdClass} text-green-600 font-medium`}>D{event.revenue.toLocaleString()}</td>
+                        <td className={`${tdClass} text-red-600 font-medium`}>D{event.cost.toLocaleString()}</td>
+                        <td className={`${tdClass} font-medium ${event.result >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          D{event.result.toLocaleString()}
+                        </td>
+                        <td className={tdClass}>
+                          <Badge tone="neutral">{eventPartners.length}</Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
-          </div>
+          )}
         </Card>
       )}
 
       {tab === 'partners' && (
         <Card className="mt-5 overflow-hidden">
-          <div className="p-6">
-            <h2 className="text-lg font-bold text-ink mb-4">Event Partners Applications</h2>
+          {loading ? (
+            <SkeletonTable rows={4} cols={5} />
+          ) : partners.length === 0 ? (
+            <EmptyState icon={Handshake} title="No applications yet" description="Partner applications will appear here" />
+          ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50/70">
                   <tr>
                     <th className={thClass}>Organization</th>
+                    <th className={thClass}>Contact</th>
                     <th className={thClass}>Event</th>
                     <th className={thClass}>Level</th>
                     <th className={thClass}>Status</th>
-                    <th className={thClass}>Action</th>
+                    <th className={thClass} />
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Partner applications would load from API */}
-                  <tr className={trClass}>
-                    <td className={tdClass} colSpan={5}>
-                      <div className="text-center py-8 text-slate-500">
-                        Pending partner applications will appear here
-                      </div>
-                    </td>
-                  </tr>
+                  {partners.map((partner) => (
+                    <tr key={partner.id} className={trClass}>
+                      <td className={tdClass}>
+                        <span className="font-medium text-slate-900">{partner.organizationName}</span>
+                      </td>
+                      <td className={`${tdClass} text-slate-500`}>
+                        <div className="text-xs">
+                          <div>{partner.contactPerson}</div>
+                          <div>{partner.email}</div>
+                        </div>
+                      </td>
+                      <td className={tdClass}>{partner.event.name}</td>
+                      <td className={tdClass}>
+                        <Badge tone={partner.sponsorshipLevel === 'gold' ? 'gold' : partner.sponsorshipLevel === 'silver' ? 'blue' : 'neutral'}>
+                          {partner.sponsorshipLevel.charAt(0).toUpperCase() + partner.sponsorshipLevel.slice(1)}
+                        </Badge>
+                      </td>
+                      <td className={tdClass}>
+                        <Badge tone={partner.status === 'approved' ? 'success' : partner.status === 'rejected' ? 'danger' : 'blue'}>
+                          {partner.status.charAt(0).toUpperCase() + partner.status.slice(1)}
+                        </Badge>
+                      </td>
+                      <td className={tdClass}>
+                        {partner.status === 'pending' && (
+                          <div className="flex gap-1">
+                            <button
+                              onClick={async () => {
+                                await api.patch(`/event-partners/${partner.id}`, { status: 'approved' });
+                                load();
+                              }}
+                              className="rounded-md p-1.5 text-green-600 hover:bg-green-50"
+                              title="Approve"
+                            >
+                              <Check className="h-3.5 w-3.5" strokeWidth={2} />
+                            </button>
+                            <button
+                              onClick={async () => {
+                                await api.patch(`/event-partners/${partner.id}`, { status: 'rejected' });
+                                load();
+                              }}
+                              className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
+                              title="Reject"
+                            >
+                              <X className="h-3.5 w-3.5" strokeWidth={2} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-          </div>
+          )}
         </Card>
       )}
 
