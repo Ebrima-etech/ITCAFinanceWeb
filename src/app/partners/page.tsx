@@ -38,8 +38,9 @@ export default function PartnersPage() {
   useEffect(() => {
     async function loadEvents() {
       try {
-        // Load from dashboard endpoint which has events
         setLoading(true);
+        const data = await api.get<EventSummary[]>('/events');
+        setEvents(data);
       } catch (err) {
         console.error('Failed to load events:', err);
       } finally {
@@ -166,7 +167,11 @@ export default function PartnersPage() {
                   className={selectClass}
                 >
                   <option value="">-- Select an Event --</option>
-                  {/* Events would be loaded from API */}
+                  {events.map((event) => (
+                    <option key={event.id} value={event.id}>
+                      {event.name} ({event.status})
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -234,7 +239,11 @@ export default function PartnersPage() {
                       required
                     >
                       <option value="">-- Select an Event --</option>
-                      {/* Events would load here */}
+                      {events.map((event) => (
+                        <option key={event.id} value={event.id}>
+                          {event.name} ({event.status})
+                        </option>
+                      ))}
                     </select>
                   </div>
 
