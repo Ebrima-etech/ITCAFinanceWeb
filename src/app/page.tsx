@@ -42,7 +42,13 @@ export default function RootPage() {
               <p className="text-xs text-slate-600">Finance</p>
             </div>
           </div>
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/partners"
+              className="px-4 py-2 rounded-lg border border-blue-200 text-blue-600 text-sm font-semibold hover:bg-blue-50 transition-colors"
+            >
+              Become Partner
+            </Link>
             {isOfficer && (
               <Link
                 href="/dashboard"

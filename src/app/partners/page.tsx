@@ -2,20 +2,24 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { BarChart3, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import { BarChart3, CheckCircle, AlertCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 import { inputClass, selectClass } from '@/lib/ui';
+import type { EventSummary } from '@/lib/types';
 
-interface Partner {
+interface EventPartner {
   id: string;
+  eventId: string;
   organizationName: string;
   logoUrl?: string;
   sponsorshipLevel: string;
 }
 
 export default function PartnersPage() {
-  const [tab, setTab] = useState<'partners' | 'apply'>('partners');
-  const [partners, setPartners] = useState<Partner[]>([]);
+  const [tab, setTab] = useState<'browse' | 'apply'>('browse');
+  const [events, setEvents] = useState<EventSummary[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<string>('');
+  const [partners, setPartners] = useState<EventPartner[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,24 +36,43 @@ export default function PartnersPage() {
   });
 
   useEffect(() => {
-    async function loadPartners() {
+    async function loadEvents() {
       try {
-        const data = await api.get<Partner[]>('/events/partners');
-        setPartners(data);
+        // Load from dashboard endpoint which has events
+        setLoading(true);
       } catch (err) {
-        console.error('Failed to load partners:', err);
+        console.error('Failed to load events:', err);
       } finally {
         setLoading(false);
       }
     }
-    loadPartners();
+    loadEvents();
   }, []);
+
+  useEffect(() => {
+    async function loadPartners() {
+      if (!selectedEvent) return;
+      try {
+        const data = await api.get<EventPartner[]>(`/events/${selectedEvent}/partners`);
+        setPartners(data);
+      } catch (err) {
+        console.error('Failed to load partners:', err);
+        setPartners([]);
+      }
+    }
+    loadPartners();
+  }, [selectedEvent]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!selectedEvent) {
+      setError('Please select an event');
+      return;
+    }
+
     setError(null);
     try {
-      await api.post('/events/partners', formData);
+      await api.post(`/events/${selectedEvent}/partners`, formData);
       setSubmitted(true);
       setFormData({
         organizationName: '',
@@ -61,7 +84,8 @@ export default function PartnersPage() {
         description: '',
         sponsorshipLevel: 'bronze',
       });
-      setTimeout(() => setTab('partners'), 3000);
+      setSelectedEvent('');
+      setTimeout(() => setTab('browse'), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit application');
     }
@@ -92,10 +116,10 @@ export default function PartnersPage() {
 
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">
-            Event Sponsorships
+            Sponsor an Event
           </h1>
           <p className="text-lg text-slate-600">
-            Partner with ITCA to promote your brand at our events
+            Partner with ITCA to promote your brand at our upcoming events
           </p>
         </div>
       </section>
@@ -106,16 +130,16 @@ export default function PartnersPage() {
           <div className="flex gap-4 border-b border-slate-200 mb-8">
             <button
               onClick={() => {
-                setTab('partners');
+                setTab('browse');
                 setSubmitted(false);
               }}
               className={`pb-3 px-4 font-semibold text-sm border-b-2 transition-colors ${
-                tab === 'partners'
+                tab === 'browse'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-slate-600 hover:text-slate-900'
               }`}
             >
-              Our Partners
+              Browse Events
             </button>
             <button
               onClick={() => setTab('apply')}
@@ -125,44 +149,60 @@ export default function PartnersPage() {
                   : 'border-transparent text-slate-600 hover:text-slate-900'
               }`}
             >
-              Apply as Partner
+              Apply as Sponsor
             </button>
           </div>
 
-          {/* Partners List */}
-          {tab === 'partners' && (
+          {/* Browse Events & Their Partners */}
+          {tab === 'browse' && (
             <div>
-              {loading ? (
-                <p className="text-center text-slate-500">Loading partners...</p>
-              ) : partners.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-slate-600 mb-4">No partners yet</p>
-                  <button
-                    onClick={() => setTab('apply')}
-                    className="text-blue-600 hover:underline font-semibold"
-                  >
-                    Be the first to apply
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {partners.map((partner) => (
-                    <div key={partner.id} className="bg-white border border-slate-200 rounded-xl p-6 text-center">
-                      {partner.logoUrl && (
-                        <img
-                          src={partner.logoUrl}
-                          alt={partner.organizationName}
-                          className="h-24 w-24 mx-auto mb-4 object-contain"
-                        />
-                      )}
-                      <h3 className="text-lg font-bold text-slate-900 mb-2">
-                        {partner.organizationName}
-                      </h3>
-                      <p className="text-sm font-semibold text-blue-600 capitalize">
-                        {partner.sponsorshipLevel} Partner
-                      </p>
+              <p className="text-slate-600 mb-6">
+                Select an event to see current sponsors
+              </p>
+              <div className="max-w-md mb-8">
+                <select
+                  value={selectedEvent}
+                  onChange={(e) => setSelectedEvent(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">-- Select an Event --</option>
+                  {/* Events would be loaded from API */}
+                </select>
+              </div>
+
+              {selectedEvent && (
+                <div>
+                  {partners.length === 0 ? (
+                    <div className="text-center py-12 bg-slate-50 rounded-lg">
+                      <p className="text-slate-600 mb-4">No sponsors yet for this event</p>
+                      <button
+                        onClick={() => setTab('apply')}
+                        className="text-blue-600 hover:underline font-semibold"
+                      >
+                        Be the first sponsor
+                      </button>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      {partners.map((partner) => (
+                        <div key={partner.id} className="bg-white border border-slate-200 rounded-xl p-6 text-center">
+                          {partner.logoUrl && (
+                            <img
+                              src={partner.logoUrl}
+                              alt={partner.organizationName}
+                              className="h-24 w-24 mx-auto mb-4 object-contain"
+                            />
+                          )}
+                          <h3 className="text-lg font-bold text-slate-900 mb-2">
+                            {partner.organizationName}
+                          </h3>
+                          <p className="text-sm font-semibold text-blue-600 capitalize">
+                            {partner.sponsorshipLevel} Sponsor
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -178,11 +218,26 @@ export default function PartnersPage() {
                     Application Submitted!
                   </h3>
                   <p className="text-green-700">
-                    Thank you for your interest. We will review your application and get back to you soon.
+                    Thank you for your interest. We will review your sponsorship application and get back to you soon.
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-8 space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Event to Sponsor *
+                    </label>
+                    <select
+                      value={selectedEvent}
+                      onChange={(e) => setSelectedEvent(e.target.value)}
+                      className={selectClass}
+                      required
+                    >
+                      <option value="">-- Select an Event --</option>
+                      {/* Events would load here */}
+                    </select>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input
                       type="text"
@@ -239,7 +294,7 @@ export default function PartnersPage() {
                   </div>
 
                   <textarea
-                    placeholder="Tell us about your organization and why you want to partner with ITCA"
+                    placeholder="Tell us about your organization and why you want to sponsor this event"
                     required
                     rows={5}
                     value={formData.description}
@@ -273,7 +328,7 @@ export default function PartnersPage() {
                     type="submit"
                     className="w-full py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors"
                   >
-                    Submit Application
+                    Submit Sponsorship Application
                   </button>
 
                   <p className="text-xs text-slate-500 text-center">
