@@ -90,7 +90,7 @@ export default function RootPage() {
           ) : dashboard ? (
             <>
               {/* KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
                 <div className="bg-white border border-slate-200 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs font-semibold text-slate-500 uppercase">Total Income</p>
