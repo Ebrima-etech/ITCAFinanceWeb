@@ -54,26 +54,10 @@ export default function RootPage() {
           </h1>
 
           {/* Description */}
-          <p className="text-base sm:text-lg lg:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed mb-10 sm:mb-12">
+          <p className="text-base sm:text-lg lg:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed mb-16 sm:mb-20">
             Professional financial management for ITCA. Complete transparency on dues, events,
             budgets, and spending.
           </p>
-
-          {/* Stats Grid - Minimalist Style */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-12 sm:mb-16 bg-white/10 rounded-lg overflow-hidden max-w-2xl mx-auto">
-            <div className="bg-black px-6 sm:px-8 py-6 sm:py-8 text-center">
-              <p className="text-white/50 text-xs font-mono mb-2 sm:mb-3">TOTAL MANAGED</p>
-              <p className="text-3xl sm:text-4xl font-bold">D0.00</p>
-            </div>
-            <div className="bg-black px-6 sm:px-8 py-6 sm:py-8 text-center border-l border-r border-white/10">
-              <p className="text-white/50 text-xs font-mono mb-2 sm:mb-3">SECURITY LEVEL</p>
-              <p className="text-3xl sm:text-4xl font-bold">100%</p>
-            </div>
-            <div className="bg-black px-6 sm:px-8 py-6 sm:py-8 text-center">
-              <p className="text-white/50 text-xs font-mono mb-2 sm:mb-3">REAL-TIME AUDIT</p>
-              <p className="text-3xl sm:text-4xl font-bold">Live</p>
-            </div>
-          </div>
 
           {/* Enhanced CTA */}
           {isOfficer ? (
