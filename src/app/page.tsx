@@ -45,7 +45,7 @@ export default function RootPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/partners"
-              className="px-4 py-2 rounded-lg border border-blue-200 text-blue-600 text-sm font-semibold hover:bg-blue-50 transition-colors"
+              className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
             >
               Become Partner
             </Link>
