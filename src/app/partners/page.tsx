@@ -7,19 +7,9 @@ import { api } from '@/lib/api';
 import { inputClass, selectClass } from '@/lib/ui';
 import type { EventSummary } from '@/lib/types';
 
-interface EventPartner {
-  id: string;
-  eventId: string;
-  organizationName: string;
-  logoUrl?: string;
-  sponsorshipLevel: string;
-}
-
 export default function PartnersPage() {
-  const [tab, setTab] = useState<'apply'>('apply');
   const [events, setEvents] = useState<EventSummary[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<string>('');
-  const [partners, setPartners] = useState<EventPartner[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
