@@ -7,19 +7,10 @@ import { api } from '@/lib/api';
 import { inputClass, selectClass } from '@/lib/ui';
 import type { EventSummary } from '@/lib/types';
 
-interface EventPartner {
-  id: string;
-  eventId: string;
-  organizationName: string;
-  logoUrl?: string;
-  sponsorshipLevel: string;
-}
-
 export default function PartnersPage() {
-  const [tab, setTab] = useState<'browse' | 'apply'>('browse');
+  const [tab, setTab] = useState<'apply'>('apply');
   const [events, setEvents] = useState<EventSummary[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<string>('');
-  const [partners, setPartners] = useState<EventPartner[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,20 +40,6 @@ export default function PartnersPage() {
     }
     loadEvents();
   }, []);
-
-  useEffect(() => {
-    async function loadPartners() {
-      if (!selectedEvent) return;
-      try {
-        const data = await api.get<EventPartner[]>(`/events/${selectedEvent}/partners`);
-        setPartners(data);
-      } catch (err) {
-        console.error('Failed to load partners:', err);
-        setPartners([]);
-      }
-    }
-    loadPartners();
-  }, [selectedEvent]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -128,94 +105,8 @@ export default function PartnersPage() {
       {/* Tabs */}
       <section className="px-4 sm:px-8 py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex gap-4 border-b border-slate-200 mb-8">
-            <button
-              onClick={() => {
-                setTab('browse');
-                setSubmitted(false);
-              }}
-              className={`pb-3 px-4 font-semibold text-sm border-b-2 transition-colors ${
-                tab === 'browse'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Browse Events
-            </button>
-            <button
-              onClick={() => setTab('apply')}
-              className={`pb-3 px-4 font-semibold text-sm border-b-2 transition-colors ${
-                tab === 'apply'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Apply as Sponsor
-            </button>
-          </div>
-
-          {/* Browse Events & Their Partners */}
-          {tab === 'browse' && (
-            <div>
-              <p className="text-slate-600 mb-6">
-                Select an event to see current sponsors
-              </p>
-              <div className="max-w-md mb-8">
-                <select
-                  value={selectedEvent}
-                  onChange={(e) => setSelectedEvent(e.target.value)}
-                  className={selectClass}
-                >
-                  <option value="">-- Select an Event --</option>
-                  {events.map((event) => (
-                    <option key={event.id} value={event.id}>
-                      {event.name} ({event.status})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {selectedEvent && (
-                <div>
-                  {partners.length === 0 ? (
-                    <div className="text-center py-12 bg-slate-50 rounded-lg">
-                      <p className="text-slate-600 mb-4">No sponsors yet for this event</p>
-                      <button
-                        onClick={() => setTab('apply')}
-                        className="text-blue-600 hover:underline font-semibold"
-                      >
-                        Be the first sponsor
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                      {partners.map((partner) => (
-                        <div key={partner.id} className="bg-white border border-slate-200 rounded-xl p-6 text-center">
-                          {partner.logoUrl && (
-                            <img
-                              src={partner.logoUrl}
-                              alt={partner.organizationName}
-                              className="h-24 w-24 mx-auto mb-4 object-contain"
-                            />
-                          )}
-                          <h3 className="text-lg font-bold text-slate-900 mb-2">
-                            {partner.organizationName}
-                          </h3>
-                          <p className="text-sm font-semibold text-blue-600 capitalize">
-                            {partner.sponsorshipLevel} Sponsor
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Application Form */}
-          {tab === 'apply' && (
-            <div className="max-w-2xl">
+          <div className="max-w-2xl">
               {submitted ? (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
                   <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" strokeWidth={2} />
@@ -346,7 +237,7 @@ export default function PartnersPage() {
                 </form>
               )}
             </div>
-          )}
+          </div>
         </div>
       </section>
 
