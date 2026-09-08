@@ -8,6 +8,21 @@ import { api } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
 import type { DashboardSummary } from '@/lib/types';
 
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function getEventStatus(dateString: string): 'upcoming' | 'happening' | 'completed' {
+  const eventDate = new Date(dateString);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  eventDate.setHours(0, 0, 0, 0);
+
+  if (eventDate > today) return 'upcoming';
+  if (eventDate.getTime() === today.getTime()) return 'happening';
+  return 'completed';
+}
+
 export default function RootPage() {
   const { user } = useAuth();
   const isOfficer = !!user && isInternalRole(user.role);
@@ -74,7 +89,7 @@ export default function RootPage() {
             {isOfficer && (
               <Link
                 href="/dashboard"
-                className="px-5 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+                className="hidden sm:block px-5 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
               >
                 Admin Dashboard
               </Link>
@@ -167,7 +182,6 @@ export default function RootPage() {
                           <th className="text-left py-3 px-4 font-semibold text-slate-700">Status</th>
                           <th className="text-right py-3 px-4 font-semibold text-slate-700">Revenue</th>
                           <th className="text-right py-3 px-4 font-semibold text-slate-700">Cost</th>
-                          <th className="text-right py-3 px-4 font-semibold text-slate-700">Profit</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -176,19 +190,21 @@ export default function RootPage() {
                             <td className="py-3 px-4 text-slate-900 font-medium">{event.name}</td>
                             <td className="py-3 px-4 text-slate-600 text-xs">{formatDate(event.date)}</td>
                             <td className="py-3 px-4">
-                              <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
-                                event.status === 'happening' ? 'bg-yellow-100 text-yellow-800' :
-                                event.status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
-                                'bg-slate-100 text-slate-800'
-                              }`}>
-                                {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                              </span>
+                              {(() => {
+                                const status = getEventStatus(event.date);
+                                return (
+                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                                    status === 'happening' ? 'bg-yellow-100 text-yellow-800' :
+                                    status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-slate-100 text-slate-800'
+                                  }`}>
+                                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                                  </span>
+                                );
+                              })()}
                             </td>
                             <td className="py-3 px-4 text-right text-green-600 font-medium">{formatMoney(event.revenue)}</td>
                             <td className="py-3 px-4 text-right text-red-600 font-medium">{formatMoney(event.cost)}</td>
-                            <td className={`py-3 px-4 text-right font-medium ${event.result >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {formatMoney(event.result)}
-                            </td>
                           </tr>
                         ))}
                       </tbody>

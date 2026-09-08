@@ -24,10 +24,22 @@ import Button from '@/components/ui/Button';
 import { SkeletonCards, SkeletonTable } from '@/components/ui/Skeleton';
 import { selectClass, thClass, tdClass, trClass } from '@/lib/ui';
 import { api } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import { formatDate, formatMoney } from '@/lib/format';
 import type { DashboardSummary } from '@/lib/types';
 
 const CURRENT_YEAR = new Date().getFullYear();
+
+function getEventStatus(dateString: string): 'upcoming' | 'happening' | 'completed' {
+  const eventDate = new Date(dateString);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  eventDate.setHours(0, 0, 0, 0);
+
+  if (eventDate > today) return 'upcoming';
+  if (eventDate.getTime() === today.getTime()) return 'happening';
+  return 'completed';
+}
 
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
@@ -43,18 +55,38 @@ function ChartTooltip({ active, payload, label }: any) {
   );
 }
 
+interface EventPartner {
+  id: string;
+  eventId: string;
+  organizationName: string;
+  logoUrl?: string;
+  sponsorshipLevel: string;
+}
+
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [year, setYear] = useState(CURRENT_YEAR);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [partners, setPartners] = useState<EventPartner[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    api
-      .get<DashboardSummary>(`/dashboard?year=${year}`)
-      .then(setSummary)
+    Promise.all([
+      api.get<DashboardSummary>(`/dashboard?year=${year}`),
+      isAdmin ? api.get<EventPartner[]>('/event-partners') : Promise.resolve([]),
+    ])
+      .then(([summary, partnerList]) => {
+        setSummary(summary);
+        setPartners(partnerList as EventPartner[]);
+      })
+      .catch(err => {
+        console.error('Failed to load dashboard data:', err);
+        setSummary(null);
+      })
       .finally(() => setLoading(false));
-  }, [year]);
+  }, [year, isAdmin]);
 
   return (
     <AppShell>
@@ -221,6 +253,57 @@ export default function DashboardPage() {
             </Card>
           </div>
 
+          {/* Partners Section - Admin Only */}
+          {isAdmin && (
+            <Card className="p-6 mb-6">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-semibold text-slate-900">Event Partners</h2>
+                  <p className="mt-1 text-sm text-slate-600">Approved sponsors and partners</p>
+                </div>
+                <Link href="/admin">
+                  <Button className="flex items-center gap-2 text-sm">
+                    Manage <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+
+              {partners.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-slate-600">No partners yet</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="border-b border-slate-200 bg-slate-50/50">
+                      <tr>
+                        <th className={`${thClass} text-left`}>Organization</th>
+                        <th className={`${thClass} text-left`}>Event</th>
+                        <th className={`${thClass} text-left`}>Level</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {partners.map((partner) => {
+                        const event = summary?.events.find(e => e.id === partner.eventId);
+                        return (
+                          <tr key={partner.id} className={trClass}>
+                            <td className={`${tdClass} font-medium text-slate-900`}>{partner.organizationName}</td>
+                            <td className={`${tdClass} text-slate-600`}>{event?.name || 'Unknown Event'}</td>
+                            <td className={`${tdClass}`}>
+                              <Badge tone={partner.sponsorshipLevel === 'gold' ? 'success' : partner.sponsorshipLevel === 'silver' ? 'blue' : 'neutral'}>
+                                {partner.sponsorshipLevel.charAt(0).toUpperCase() + partner.sponsorshipLevel.slice(1)}
+                              </Badge>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </Card>
+          )}
+
           {/* Events Performance Table */}
           <Card className="p-6">
             <div className="mb-6 flex items-center justify-between">
@@ -248,6 +331,7 @@ export default function DashboardPage() {
                     <tr>
                       <th className={`${thClass} text-left`}>Event Name</th>
                       <th className={`${thClass} text-left`}>Date</th>
+                      <th className={`${thClass} text-left`}>Status</th>
                       <th className={`${thClass} text-right`}>Revenue</th>
                       <th className={`${thClass} text-right`}>Expenses</th>
                       <th className={`${thClass} text-right`}>Profit/Loss</th>
@@ -261,6 +345,16 @@ export default function DashboardPage() {
                         <tr key={event.id} className={trClass}>
                           <td className={`${tdClass} font-medium text-slate-900`}>{event.name}</td>
                           <td className={`${tdClass} text-slate-600`}>{formatDate(event.date)}</td>
+                          <td className={`${tdClass}`}>
+                            {(() => {
+                              const status = getEventStatus(event.date);
+                              return (
+                                <Badge tone={status === 'happening' ? 'gold' : status === 'upcoming' ? 'blue' : 'neutral'}>
+                                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                                </Badge>
+                              );
+                            })()}
+                          </td>
                           <td className={`${tdClass} text-right font-semibold text-slate-900 tabular-nums`}>
                             {formatMoney(event.revenue)}
                           </td>
@@ -284,6 +378,7 @@ export default function DashboardPage() {
                   <tfoot>
                     <tr className="border-t-2 border-slate-200 bg-slate-50">
                       <td className={`${tdClass} font-semibold text-slate-900`}>Total</td>
+                      <td className={tdClass} />
                       <td className={tdClass} />
                       <td className={`${tdClass} text-right font-bold text-slate-900 tabular-nums`}>
                         {formatMoney(summary.byMonth.reduce((sum, m) => sum + m.income, 0))}

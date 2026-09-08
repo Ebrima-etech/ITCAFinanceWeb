@@ -69,6 +69,20 @@ export default function AdminPage() {
   const [postError, setPostError] = useState<string | null>(null);
   const [showPostForm, setShowPostForm] = useState(false);
 
+  const [showPartnerForm, setShowPartnerForm] = useState(false);
+  const [partnerForm, setPartnerForm] = useState({
+    eventId: '',
+    organizationName: '',
+    contactPerson: '',
+    email: '',
+    phone: '',
+    website: '',
+    logoUrl: '',
+    description: '',
+    sponsorshipLevel: 'bronze',
+  });
+  const [partnerError, setPartnerError] = useState<string | null>(null);
+
   async function load() {
     setLoading(true);
     try {
@@ -141,6 +155,29 @@ export default function AdminPage() {
       load();
     } catch (err) {
       console.error('Failed to delete post:', err);
+    }
+  }
+
+  async function handleCreatePartner(e: React.FormEvent) {
+    e.preventDefault();
+    setPartnerError(null);
+    try {
+      await api.post('/event-partners', partnerForm);
+      setPartnerForm({
+        eventId: '',
+        organizationName: '',
+        contactPerson: '',
+        email: '',
+        phone: '',
+        website: '',
+        logoUrl: '',
+        description: '',
+        sponsorshipLevel: 'bronze',
+      });
+      setShowPartnerForm(false);
+      load();
+    } catch (err) {
+      setPartnerError(err instanceof Error ? err.message : 'Failed to create partner');
     }
   }
 
@@ -420,11 +457,115 @@ export default function AdminPage() {
       )}
 
       {tab === 'partners' && (
-        <Card className="mt-5 overflow-hidden">
-          {loading ? (
-            <SkeletonTable rows={4} cols={5} />
-          ) : partners.length === 0 ? (
-            <EmptyState icon={Handshake} title="No applications yet" description="Partner applications will appear here" />
+        <div className="mt-5">
+          <div className="flex justify-end">
+            <Button onClick={() => setShowPartnerForm((v) => !v)}>
+              <Plus className="h-4 w-4" /> {showPartnerForm ? 'Close' : 'Add partner'}
+            </Button>
+          </div>
+
+          {showPartnerForm && (
+            <Card className="mt-4 p-5">
+              <form onSubmit={handleCreatePartner} className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <select
+                    required
+                    value={partnerForm.eventId}
+                    onChange={(e) => setPartnerForm({ ...partnerForm, eventId: e.target.value })}
+                    className={selectClass}
+                  >
+                    <option value="">-- Select Event --</option>
+                    {events.map((event) => (
+                      <option key={event.id} value={event.id}>
+                        {event.name}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    required
+                    placeholder="Organization Name"
+                    value={partnerForm.organizationName}
+                    onChange={(e) => setPartnerForm({ ...partnerForm, organizationName: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    required
+                    placeholder="Contact Person"
+                    value={partnerForm.contactPerson}
+                    onChange={(e) => setPartnerForm({ ...partnerForm, contactPerson: e.target.value })}
+                    className={inputClass}
+                  />
+                  <input
+                    required
+                    type="email"
+                    placeholder="Email"
+                    value={partnerForm.email}
+                    onChange={(e) => setPartnerForm({ ...partnerForm, email: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    required
+                    placeholder="Phone"
+                    value={partnerForm.phone}
+                    onChange={(e) => setPartnerForm({ ...partnerForm, phone: e.target.value })}
+                    className={inputClass}
+                  />
+                  <input
+                    type="url"
+                    placeholder="Website (optional)"
+                    value={partnerForm.website}
+                    onChange={(e) => setPartnerForm({ ...partnerForm, website: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    type="url"
+                    placeholder="Logo URL (optional)"
+                    value={partnerForm.logoUrl}
+                    onChange={(e) => setPartnerForm({ ...partnerForm, logoUrl: e.target.value })}
+                    className={inputClass}
+                  />
+                  <select value={partnerForm.sponsorshipLevel} onChange={(e) => setPartnerForm({ ...partnerForm, sponsorshipLevel: e.target.value })} className={selectClass}>
+                    <option value="bronze">Bronze</option>
+                    <option value="silver">Silver</option>
+                    <option value="gold">Gold</option>
+                  </select>
+                </div>
+                <textarea
+                  required
+                  placeholder="Description"
+                  value={partnerForm.description}
+                  onChange={(e) => setPartnerForm({ ...partnerForm, description: e.target.value })}
+                  className={`${inputClass} min-h-20 resize-none`}
+                />
+                {partnerError && (
+                  <div className="flex items-start gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+                    {partnerError}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={!partnerForm.eventId || !partnerForm.organizationName || !partnerForm.email || !partnerForm.phone}>
+                    Create Partner
+                  </Button>
+                  <Button type="button" onClick={() => setShowPartnerForm(false)} className="bg-slate-200 text-slate-700 hover:bg-slate-300">
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </Card>
+          )}
+
+          <Card className="mt-4 overflow-hidden">
+            {loading ? (
+              <SkeletonTable rows={4} cols={5} />
+            ) : partners.length === 0 ? (
+              <EmptyState icon={Handshake} title="No applications yet" description="Partner applications will appear here" />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -462,38 +603,52 @@ export default function AdminPage() {
                         </Badge>
                       </td>
                       <td className={tdClass}>
-                        {partner.status === 'pending' && (
-                          <div className="flex gap-1">
-                            <button
-                              onClick={async () => {
-                                await api.patch(`/event-partners/${partner.id}`, { status: 'approved' });
-                                load();
-                              }}
-                              className="rounded-md p-1.5 text-green-600 hover:bg-green-50"
-                              title="Approve"
-                            >
-                              <Check className="h-3.5 w-3.5" strokeWidth={2} />
-                            </button>
-                            <button
-                              onClick={async () => {
-                                await api.patch(`/event-partners/${partner.id}`, { status: 'rejected' });
-                                load();
-                              }}
-                              className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
-                              title="Reject"
-                            >
-                              <X className="h-3.5 w-3.5" strokeWidth={2} />
-                            </button>
-                          </div>
-                        )}
+                        <div className="flex gap-1">
+                          {partner.status === 'pending' && (
+                            <>
+                              <button
+                                onClick={async () => {
+                                  await api.patch(`/event-partners/${partner.id}`, { status: 'approved' });
+                                  load();
+                                }}
+                                className="rounded-md p-1.5 text-green-600 hover:bg-green-50"
+                                title="Approve"
+                              >
+                                <Check className="h-3.5 w-3.5" strokeWidth={2} />
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  await api.patch(`/event-partners/${partner.id}`, { status: 'rejected' });
+                                  load();
+                                }}
+                                className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
+                                title="Reject"
+                              >
+                                <X className="h-3.5 w-3.5" strokeWidth={2} />
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={async () => {
+                              if (!confirm('Delete this partner?')) return;
+                              await api.delete(`/event-partners/${partner.id}`);
+                              load();
+                            }}
+                            className="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          )}
-        </Card>
+            )}
+          </Card>
+        </div>
       )}
 
       {tab === 'activity' && (

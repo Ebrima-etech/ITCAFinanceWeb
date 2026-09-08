@@ -14,6 +14,17 @@ import { formatDate, formatMoney } from '@/lib/format';
 import { inputClass } from '@/lib/ui';
 import type { EventSummary } from '@/lib/types';
 
+function getEventStatus(dateString: string): 'upcoming' | 'happening' | 'completed' {
+  const eventDate = new Date(dateString);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  eventDate.setHours(0, 0, 0, 0);
+
+  if (eventDate > today) return 'upcoming';
+  if (eventDate.getTime() === today.getTime()) return 'happening';
+  return 'completed';
+}
+
 export default function EventsPage() {
   const { user } = useAuth();
   const canEdit = user?.role === 'ADMIN' || user?.role === 'FINANCE_OFFICER';
@@ -161,9 +172,14 @@ export default function EventsPage() {
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-ink/5 text-ink">
                       <CalendarDays className="h-4 w-4" strokeWidth={2} />
                     </div>
-                    <Badge tone={event.status === 'happening' ? 'gold' : event.status === 'upcoming' ? 'blue' : 'neutral'}>
-                      {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                    </Badge>
+                    {(() => {
+                      const status = getEventStatus(event.date);
+                      return (
+                        <Badge tone={status === 'happening' ? 'gold' : status === 'upcoming' ? 'blue' : 'neutral'}>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </Badge>
+                      );
+                    })()}
                   </div>
                   <p className="font-semibold text-ink">{event.name}</p>
                   <p className="mt-0.5 text-xs text-slate-500">{formatDate(event.date)}</p>
