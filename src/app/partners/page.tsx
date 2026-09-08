@@ -234,6 +234,7 @@ export default function PartnersPage() {
                     We will review your application within 3-5 business days
                   </p>
                 </form>
+              )}
             </div>
           </div>
         </div>
