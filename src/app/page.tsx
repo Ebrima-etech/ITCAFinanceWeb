@@ -6,6 +6,7 @@ import { BarChart3, Eye, TrendingUp, DollarSign, Handshake, AlertCircle, X } fro
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
+import { SkeletonCards } from '@/components/ui/Skeleton';
 import type { DashboardSummary } from '@/lib/types';
 
 function formatDate(date: string) {
@@ -127,9 +128,7 @@ export default function RootPage() {
       <section className="px-4 sm:px-8 pb-20">
         <div className="max-w-6xl mx-auto">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-slate-500">Loading financial data...</p>
-            </div>
+            <SkeletonCards count={4} />
           ) : dashboard ? (
             <>
               {/* KPI Cards */}
