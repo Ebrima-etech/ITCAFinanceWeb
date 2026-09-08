@@ -63,7 +63,6 @@ export default function PartnersPage() {
         sponsorshipLevel: 'bronze',
       });
       setSelectedEvent('');
-      setTimeout(() => setTab('browse'), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit application');
     }
