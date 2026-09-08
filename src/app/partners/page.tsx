@@ -106,7 +106,7 @@ export default function PartnersPage() {
         <div className="max-w-6xl mx-auto">
           {/* Application Form */}
           <div className="max-w-2xl">
-              {submitted ? (
+            {submitted ? (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
                   <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" strokeWidth={2} />
                   <h3 className="text-2xl font-bold text-green-900 mb-2">
