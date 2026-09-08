@@ -91,7 +91,7 @@ export default function AdminPage() {
         api.get<ActivityLogEntry[]>('/activity-log?take=50'),
         api.get<Post[]>('/feed'),
         api.get<EventSummary[]>('/events'),
-        api.get<EventPartnerApp[]>('/event-partners'),
+        api.get<EventPartnerApp[]>('/events/partners'),
       ]);
       setUsers(userList);
       setLogs(logList);
@@ -608,7 +608,7 @@ export default function AdminPage() {
                             <>
                               <button
                                 onClick={async () => {
-                                  await api.patch(`/event-partners/${partner.id}`, { status: 'approved' });
+                                  await api.patch(`/events/${partner.event.id}/partners/${partner.id}`, { status: 'approved' });
                                   load();
                                 }}
                                 className="rounded-md p-1.5 text-green-600 hover:bg-green-50"
@@ -618,7 +618,7 @@ export default function AdminPage() {
                               </button>
                               <button
                                 onClick={async () => {
-                                  await api.patch(`/event-partners/${partner.id}`, { status: 'rejected' });
+                                  await api.patch(`/events/${partner.event.id}/partners/${partner.id}`, { status: 'rejected' });
                                   load();
                                 }}
                                 className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
@@ -631,7 +631,7 @@ export default function AdminPage() {
                           <button
                             onClick={async () => {
                               if (!confirm('Delete this partner?')) return;
-                              await api.delete(`/event-partners/${partner.id}`);
+                              await api.delete(`/events/${partner.event.id}/partners/${partner.id}`);
                               load();
                             }}
                             className="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
