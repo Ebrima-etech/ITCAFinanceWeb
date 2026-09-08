@@ -40,20 +40,6 @@ export default function PartnersPage() {
     loadEvents();
   }, []);
 
-  useEffect(() => {
-    async function loadPartners() {
-      if (!selectedEvent) return;
-      try {
-        const data = await api.get<EventPartner[]>(`/events/${selectedEvent}/partners`);
-        setPartners(data);
-      } catch (err) {
-        console.error('Failed to load partners:', err);
-        setPartners([]);
-      }
-    }
-    loadPartners();
-  }, [selectedEvent]);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedEvent) {
